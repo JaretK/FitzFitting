@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.text.*?>
+<?import javafx.scene.*?>
+<?import javafx.scene.control.*?>
+<?import java.lang.*?>
+<?import javafx.scene.layout.*?>
+
+<AnchorPane fx:id="root" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="448.0" prefWidth="600.0" stylesheets="@FFSkins.css" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="FFController">
+   <children>
+      <MenuBar prefHeight="30.0" prefWidth="600.0">
+        <menus>
+          <Menu mnemonicParsing="false" text="File">
+            <items>
+              <MenuItem fx:id="Reset" mnemonicParsing="false" onAction="#ResetOnAction" text="Reset" />
+                  <MenuItem fx:id="Exit" mnemonicParsing="false" onAction="#ExitOnAction" text="Exit" />
+            </items>
+          </Menu>
+        </menus>
+      </MenuBar>
+      <Group id="SPROXGroup" fx:id="SPROXGroup" layoutX="-6.0">
+         <children>
+            <Button fx:id="SPROXBrowse" layoutX="517.0" layoutY="38.0" mnemonicParsing="false" onAction="#SPROXButtonOnAction" prefHeight="26.0" prefWidth="80.0" text="Browse" />
+            <Label fx:id="SPROXLabel" layoutX="37.0" layoutY="43.0" prefHeight="16.0" prefWidth="74.0" text="SPROX csv" />
+            <TextField fx:id="SPROXField" layoutX="111.0" layoutY="39.0" onDragEntered="#SPROXOnDragEntered" onDragExited="#SPROXOnDragExited" prefHeight="26.0" prefWidth="395.0" styleClass="textfield" stylesheets="@FFSkins.css" />
+         </children>
+      </Group>
+      <Group id="SPROXGroup" fx:id="SPROX2Group" disable="true" layoutX="-6.0" layoutY="33.0">
+         <children>
+            <Button fx:id="SPROX2Browse" layoutX="517.0" layoutY="38.0" mnemonicParsing="false" onAction="#SPROX2ButtonOnAction" prefHeight="26.0" prefWidth="80.0" text="Browse" />
+            <Label fx:id="SPROX2Label" layoutX="10.0" layoutY="43.0" prefHeight="16.0" prefWidth="101.0" text="2nd SPROX csv" />
+            <TextField fx:id="SPROX2Field" layoutX="111.0" layoutY="39.0" onDragEntered="#SPROX2OnDragEntered" onDragExited="#SPROX2OnDragExited" prefHeight="26.0" prefWidth="395.0" styleClass="textfield" stylesheets="@FFSkins.css" />
+         </children>
+      </Group>
+      <Group id="DenaturantGroup" layoutX="-5.0" layoutY="41.0" stylesheets="@FFSkins.css">
+         <children>
+            <TextField fx:id="DenaturantField" layoutX="111.0" layoutY="64.0" onDragEntered="#DenaturantOnDragEntered" onDragExited="#DenaturantOnDragExited" prefHeight="26.0" prefWidth="395.0" styleClass="textfield" />
+            <Label layoutX="14.0" layoutY="69.0" prefHeight="16.0" prefWidth="97.0" text="Denaturant File" />
+            <Button fx:id="DenaturantBrowse" layoutX="517.0" layoutY="64.0" mnemonicParsing="false" onAction="#DenaturantButtonOnAction" prefHeight="26.0" prefWidth="80.0" text="Browse" />
+         </children>
+      </Group>
+      <Group layoutX="-16.0" layoutY="22.0">
+         <children>
+            <CheckBox id="Urea" fx:id="Urea" layoutX="89.0" layoutY="119.0" mnemonicParsing="false" text="Urea" />
+            <CheckBox fx:id="Graphs" layoutX="201.0" layoutY="119.0" mnemonicParsing="false" text="Generate Graphs" />
+            <Button id="button-default" fx:id="AnalyzeButton" defaultButton="true" layoutX="487.0" layoutY="116.0" mnemonicParsing="false" onAction="#AnalyzeOnAction" prefHeight="13.0" prefWidth="120.0" styleClass="Button-Default" text="Analyze" />
+            <CheckBox id="Compare" fx:id="CompareInputs" layoutX="374.0" layoutY="119.0" mnemonicParsing="false" text="Compare" />
+         </children>
+      </Group>
+      <ScrollPane id="FFInfoContainer" fx:id="FFInfoContainer" layoutX="3.0" layoutY="171.0" prefHeight="253.0" prefWidth="594.0">
+         <content>
+            <TextFlow id="FFInfo" fx:id="FFInfo" prefHeight="253.0" prefWidth="593.0" />
+         </content>
+      </ScrollPane>
+      <ProgressBar layoutY="424.0" prefHeight="20.0" prefWidth="600.0" progress="0.0" />
+   </children>
+</AnchorPane>
