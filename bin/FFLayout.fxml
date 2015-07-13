@@ -52,6 +52,6 @@
             <TextFlow id="FFInfo" fx:id="FFInfo" prefHeight="253.0" prefWidth="593.0" />
          </content>
       </ScrollPane>
-      <ProgressBar layoutY="424.0" prefHeight="20.0" prefWidth="600.0" progress="0.0" />
+      <ProgressBar id="progressBar" fx:id="progressBar" layoutY="424.0" prefHeight="20.0" prefWidth="600.0" progress="0.0" />
    </children>
 </AnchorPane>

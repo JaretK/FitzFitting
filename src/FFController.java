@@ -2,7 +2,7 @@ import java.io.File;
 import java.net.URL;
 import java.util.ResourceBundle;
 
-import javafx.application.Platform;
+import javafx.beans.binding.Bindings;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.ListChangeListener;
@@ -14,13 +14,12 @@ import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.MenuItem;
+import javafx.scene.control.ProgressBar;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextField;
 import javafx.scene.input.DragEvent;
 import javafx.scene.input.Dragboard;
 import javafx.scene.input.TransferMode;
-import javafx.scene.paint.Color;
-import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
 import javafx.stage.FileChooser;
 import javafx.stage.Modality;
@@ -30,6 +29,8 @@ import javafx.stage.Stage;
 
 public class FFController extends FFMain implements Initializable{
 
+	private static final boolean DEBUG = false;
+	
 	@FXML
 	private Button SPROXBrowse, SPROX2Browse, DenaturantBrowse, AnalyzeButton;
 
@@ -40,7 +41,7 @@ public class FFController extends FFMain implements Initializable{
 	private CheckBox Urea, Graphs, CompareInputs;
 
 	@FXML
-	private Group SPROX2Group;
+	private Group SPROXGroup, SPROX2Group;
 	
 	@FXML
 	private MenuItem Reset, Exit;
@@ -50,6 +51,9 @@ public class FFController extends FFMain implements Initializable{
 
 	@FXML
 	private ScrollPane FFInfoContainer;
+	
+	@FXML
+	private ProgressBar progressBar;
 
 	@Override
 	public void initialize(URL location, ResourceBundle resources) {
@@ -63,7 +67,7 @@ public class FFController extends FFMain implements Initializable{
 		Graphs.setAllowIndeterminate(false);
 		
 		/**
-		 * Add listeners
+		 * Add listeners and bindings
 		 */
 		
 		/*
@@ -81,19 +85,30 @@ public class FFController extends FFMain implements Initializable{
 			public void changed(ObservableValue<? extends Boolean> observable,
 					Boolean oldValue, Boolean newValue) {
 				SPROX2Group.setDisable(!newValue);
+				SPROX2Field.setText("");
 			}
 		});
+		
+		AnalyzeButton.disableProperty().bind(Bindings.or(SPROXGroup.disabledProperty(),Bindings.or(SPROXField.textProperty().isEqualTo(""), 
+				Bindings.and(CompareInputs.selectedProperty(), SPROX2Field.textProperty().isEqualTo("")))));
 		
 		/*
 		 * Write Greeting
 		 */
-		writeLine("");
+		TextFlowWriter.writeLine("", FFInfo);
 		String name = System.getProperty("user.name");
 		String os = System.getProperty("os.name");
 		String arch = System.getProperty("os.arch");
 		String version = System.getProperty("os.version");
-		writeInfo("Hello "+name);
-		writeInfo("I've detected you're running "  +os+" ("+version+", "+arch+")");
+		TextFlowWriter.writeInfo("Hello "+name, FFInfo);
+		TextFlowWriter.writeInfo("I've detected you're running "  +os+" ("+version+", "+arch+")", FFInfo);
+		
+
+		if(DEBUG){
+			SPROXField.setText("/Users/jkarnuta/Desktop/10-16-12 manA Control Data.csv");
+			DenaturantField.setText("/Users/jkarnuta/Desktop/manATags.csv");
+			AnalyzeButton.fire();
+		}
 
 	}
 
@@ -228,46 +243,57 @@ public class FFController extends FFMain implements Initializable{
 		}
 
 	}
-
-	/**
-	 * TEXTFLOW METHODS
-	 */
-
-	private void writeLine(String line){
-		Text text = new Text(line+"\n");
-		addText(text);
-	}
-	private void appendText(String text){
-		addText(new Text(text));
-	}
-	private void writeInfo(String infoText){
-		Text text = new Text(infoText+"\n");
-		text.setFill(Color.web("#235F9C"));
-		addText(text);
-	}
-	private void writeSuccess(String successText){
-		Text text = new Text(successText+"\n");
-		text.setFill(Color.CHARTREUSE);
-		addText(text);
-	}
-	private void writeError(String errorText){
-		Text text = new Text(errorText+"\n");
-		text.setFill(Color.RED);
-		text.setStyle("-fx-stroke:Black");
-		text.setStyle("-fx-stroke-width:0.1");
-		addText(text);
-	}
-	private synchronized void addText(Text text){
-		Platform.runLater(()-> {
-			FFInfo.getChildren().add(text);
-		});
-	}
+	
 	/**
 	 * Analyze On Action
 	 */
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public void AnalyzeOnAction(){
-		double midpointdiff = Urea.isSelected() ? 1.0 : 0.5;
 		
+		/*
+		 * Clear TextFlow
+		 */
+		
+		TextFlowWriter.clear(FFInfo);
+		
+		/*
+		 * Build constants for constructors
+		 */
+		double midpointdiff = Urea.isSelected() ? 1.0 : 0.5;
+		boolean genGraphs = Graphs.isSelected();
+		String SPROX1 = SPROXField.getText();
+		String SPROX2 = SPROX2Field.getText();
+		String denaturants = DenaturantField.getText();
+		
+		IFFModel model;
+		if (CompareInputs.isSelected()){
+			System.err.println("Not Implemented");
+			TextFlowWriter.writeError("FFModelDoublet is not yet implemented", FFInfo);
+			model = new FFModelDoublet();
+		}
+		else{
+			model = new FFModelSinglet(SPROX1, denaturants, FFInfo, genGraphs);
+		}
+		/*
+		 * Add bindings for communication between model and controller
+		 */
+		SPROXGroup.setDisable(true);
+		model.runningProperty().addListener(new ChangeListener() {
+			@Override
+			public void changed(ObservableValue observable, Object oldValue,
+					Object newValue) {
+				SPROXGroup.setDisable((boolean) newValue);
+			}
+		});
+		progressBar.progressProperty().bind(model.progressProperty());
+		super.loadAndStart(model);
+	}
+	/**
+	 * Getter Methods
+	 */
+	
+	public ProgressBar getProgressBar(){
+		return progressBar;
 	}
 
 }

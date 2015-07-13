@@ -13,20 +13,49 @@ public class FFMain extends Application {
 
 	public static Parent root;
 	public static Stage stage;
-	
+
 	@Override
 	public void start(Stage primaryStage) throws IOException {
 		// TODO Auto-generated method stub
-		
+
 		Font.loadFont(FFMain.class.getResourceAsStream("expressway.ttf"), 12);
 		stage = primaryStage;
 		root = FXMLLoader.load(getClass().getResource("FFLayout.fxml"));
 		Scene scene = new Scene(root);
 		stage.setTitle("FitzFitting SPROX Analysis v1.0");
 		stage.setScene(scene);
+		stage.setResizable(false);
 		stage.show();
 	}
-	
+
+	public void loadAndStart(IFFModel model){
+		/*
+		 * Perform preliminary data checks, loads CSVs, and digests
+		 */
+		Thread modelThread = new Thread(){
+			public void run(){
+				FFError modelStatus = model.getStatus();
+				if (modelStatus == FFError.NoError)
+				{
+					model.writeLoadedMessage();
+					model.start();
+					model.save();
+					if(model.getGenerateGraphsStatus()){
+						model.generateGraphs();
+					}
+				}
+				else
+				{
+					model.writeError("Error loading model "+modelStatus);
+					System.out.println("Terminating");
+				}
+				model.terminate();
+			}
+		};
+		
+		modelThread.start();
+	}
+
 	public void restart(){
 		stage.close();
 		try{
@@ -37,13 +66,13 @@ public class FFMain extends Application {
 			exit();
 		}
 	}
-	
+
 	public void exit(){
 		Platform.exit();
 		System.exit(0);
 	}
-	
-	
+
+
 	//Backup
 	public static void main(String[] args){
 		launch(args);

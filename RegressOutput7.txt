@@ -1,0 +1,80 @@
+This file, RegressOutput.txt, was created at 3:38:16 PM on Jul 7, 2015
+ 
+Unweighted Least Squares Minimisation
+Nelder and Mead Simplex Non-linear Regression
+y = f(x1, x2, x3 . . ., c[0], c[1], c[2] . . .
+y is non-linear with respect to the c[i]
+
+Initial estimates were supplied by the user
+
+Estimated parameters
+The statistics are obtained assuming that the model behaves as a linear model about the minimum.
+The Hessian matrix is calculated as the numerically derived second derivatives of chi square with respect to all pairs of parameters.
+Consequentlty treat the statistics with great caution
+ 
+             	Best         	Estimate of  	Coefficient  	t-value      	p-value
+             	estimate     	the error    	of           	t            	P > |t|
+             	             	             	variation (%)
+c[0]         	0.1727       	3.5853       	2076.0034    	0.0482       	0.9631
+c[1]         	3.0326       	7.2535       	239.1842     	0.4181       	0.6904
+
+             	Best         	Pre-min      	Post-min     	Initial      	Fractional   	Scaling      	Constraint
+             	estimate     	gradient     	gradient     	estimate     	step         	factor
+c[0]         	0.1727       	-4.8383E-7   	4.8565E-7    	1.0          	0.001        	1.0          	none
+c[1]         	3.0326       	-2.0796E-6   	2.0795E-6    	1.0          	0.001        	1.0          	none
+
+
+
+x0           	y(expl)      	y(calc)      	weight       	residual     	residual
+             	             	             	             	(unweighted) 	(weighted)
+0.5          	1.5101       	1.1037       	1.0          	-0.4064      	-0.4064
+1.0          	0.7389       	1.0722       	1.0          	0.3333       	0.3333
+1.25         	0.9071       	1.0567       	1.0          	0.1496       	0.1496
+1.5          	0.9205       	1.0414       	1.0          	0.1209       	0.1209
+1.75         	1.084        	1.0264       	1.0          	-0.0576      	-0.0576
+2.0          	1.0911       	1.0117       	1.0          	-0.0794      	-0.0794
+2.5          	0.8174       	0.9834       	1.0          	0.166        	0.166
+3.0          	1.203        	0.9567       	1.0          	-0.2462      	-0.2462
+
+Sum of squares of the unweighted residuals	0.4111
+ 
+Correlation: x - y data
+Linear Correlation Coefficient (R)	-0.1569
+Linear Correlation Coefficient Probability	0.7105
+ 
+Correlation: y(experimental) - y(calculated)
+Linear Correlation Coefficient	0.1757
+Linear Correlation Coefficient Probability	0.6773
+ 
+Degrees of freedom	6
+Number of data points	8
+Number of estimated paramaters	2
+
+Parameter - parameter correlation coefficients
+             	c[0]         	c[1]         	
+c[0]         	1.0          	-0.9001      	
+c[1]         	-0.9001      	1.0          	
+
+
+Coefficient of determination, R =                   0.0304
+Adjusted Coefficient of determination, R' =         -0.1312
+Coefficient of determination, F-ratio =             0.1883
+Coefficient of determination, F-ratio probability = 0.6795
+Total (weighted) sum of squares  =                  0.424
+Regression (weighted) sum of squares  =             0.0129
+Error (weighted) sum of squares  =                  0.4111
+
+
+Durbin-Watson d statistic	2.0539
+
+Number of iterations taken	309
+Maximum number of iterations allowed	3000
+Number of restarts taken	3
+Maximum number of restarts allowed	3
+Standard deviation of the simplex at the minimum	8.7802E-10
+Convergence tolerance	1.0E-9
+simplex sd < the tolerance times the mean of the absolute values of the y values
+Step used in numerical differentiation to obtain Hessian matrix
+d(parameter) = parameter*1.0E-4
+
+End of file
