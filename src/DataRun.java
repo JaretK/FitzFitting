@@ -8,25 +8,12 @@ import flanagan.analysis.Regression;
 
 public class DataRun extends Task<Void>{
 
-	private final String peptide;
-	private final String protein;
-	private final String intsum;
-	private final String rt;
 	private final double[] denaturants;
 	private final double[] intensities;
-	private String[] calculatedValues;
+	private double[] calculatedValues;
+	private boolean finished;
 
-	/*
-	 * 4 Identifiers:
-	 * Peptide, Protein, Int Sum, RT
-	 */
-	private static final int numIdentifiers = 4;
-
-	public DataRun(String[] run, Double[] denaturants){
-		this.peptide = run[0];
-		this.protein = run[1];
-		this.intsum = run[2];
-		this.rt = run[3];
+	public DataRun(double[] intensities, Double[] denaturants){
 		
 		//populate primitive double array
 		this.denaturants = new double[denaturants.length];
@@ -34,14 +21,10 @@ public class DataRun extends Task<Void>{
 			this.denaturants[i] = denaturants[i];
 		}
 		
-		int numIntensities = denaturants.length;
-		this.intensities = new double[numIntensities];
-		for (int i = numIdentifiers; i < numIdentifiers + numIntensities; i++){
-			//Offset by numIdentifiers
-			this.intensities[i - numIdentifiers] = Double.parseDouble(run[i]);
-		}
+		//populate the intensities array
+		this.intensities = intensities;
 		
-		
+		this.finished = false;
 	}
 	
 	@SuppressWarnings("serial")
@@ -81,10 +64,14 @@ public class DataRun extends Task<Void>{
 		step[0] = 0.001d; //Chalf
 		step[1] = 0.001d; // b
 		
-		Regression reg = new Regression(x,y);
+		//weights
+		double[] weights = calculateWeights();
+		
+		Regression reg = new Regression(x,y, weights);
 		reg.simplex(f,estimates, step);
 		double[] bestEstimates = reg.getBestEstimates();
 		double[] bestEstimatesSD = reg.getBestEstimatesStandardDeviations();
+		System.out.println(Arrays.toString(reg.getWeights()));
 		
 		double adjRSquared = reg.getAdjustedCoefficientOfDetermination();
 		double chalf = bestEstimates[0];
@@ -93,40 +80,50 @@ public class DataRun extends Task<Void>{
 		double bSD = bestEstimatesSD[1];
 		
 		
-		//get the 
-		List<String> calculatedRun = new ArrayList<String>(){{
-			add(peptide);
-			add(protein);
-			add(intsum);
-			add(rt);
-			for (double ele : intensities){
-				add(String.valueOf(ele));
-			}
-			add(String.valueOf(chalf));
-			add(String.valueOf(chalfSD));
-			add(String.valueOf(b));
-			add(String.valueOf(bSD));
-			add(String.valueOf(adjRSquared));
+		//makes the array containing, in order,
+		//c1/2, c1/2 sd, b, b sd, adjrsq
+		List<Double> calculatedRun = new ArrayList<Double>(){{
+			add(chalf);
+			add(chalfSD);
+			add(b);
+			add(bSD);
+			add(adjRSquared);
 		}};
 		
-		String[] returnRun = new String[calculatedRun.size()];
-		returnRun = calculatedRun.toArray(returnRun);
-		this.calculatedValues = returnRun;
+		Double[] preConvertedRun = new Double[calculatedRun.size()];
+		preConvertedRun = calculatedRun.toArray(preConvertedRun);
+		double[] convertedRun = new double[preConvertedRun.length];
+		for (int i = 0; i < preConvertedRun.length; i++){
+			convertedRun[i] = preConvertedRun[i];
+		}
+		this.calculatedValues = convertedRun;
 	}
 	
-	public String[] getCalculatedValues(){
+	public double[] getCalculatedValues(){
 		return this.calculatedValues;
 	}
 
 	@Override
 	protected Void call() throws Exception {
 		this.calculateFit();
+		
 		return null;
 	}
 	
+	private double[] calculateWeights(){
+		double[] weights = new double[this.intensities.length];
+		
+		for (int i = 0; i < weights.length; i++)
+			weights[i] = 1d;
+		
+		return weights;
+	}
+	
 	public static void main(String[] args){
-		String[] t = "AAAEGPM(OX)K	YJL052W	196792.1683	16.067245	1.510101143	0.738887242	0.907143504	0.920527861	1.083988819	1.091062484	0.817365849	1.202946446".split("\\s+");
-		DataRun r = new DataRun(t, 
+		String[] t = "2.46633	1.75591	1.6659	1.15683	0.595836	0.595003	0.462354	0.458989".split("\\s+");
+		double [] d = new double[t.length];
+		for (int i = 0; i < t.length; i++)d[i] = Double.parseDouble(t[i]);
+		DataRun r = new DataRun(d, 
 				new Double[]{0.5	,1d,	1.25	,1.5,	1.75,	2d,	2.5, 3d});
 		System.out.println(Arrays.toString(r.intensities)); 
 		try {

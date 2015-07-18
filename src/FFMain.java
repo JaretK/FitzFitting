@@ -1,3 +1,4 @@
+
 import java.io.IOException;
 
 import javafx.application.Application;
@@ -28,31 +29,41 @@ public class FFMain extends Application {
 		stage.show();
 	}
 
-	public void loadAndStart(IFFModel model){
+	public void loadAndStart(AbstractFFModel model){
 		/*
 		 * Perform preliminary data checks, loads CSVs, and digests
 		 */
 		Thread modelThread = new Thread(){
 			public void run(){
+				//status on loading AbstractDataSet.load() and constructor
 				FFError modelStatus = model.getStatus();
-				if (modelStatus == FFError.NoError)
-				{
-					model.writeLoadedMessage();
-					model.start();
+
+				if(model.getStatus() != FFError.NoError){
+					model.writeError("Error loading model "+modelStatus);
+					System.err.println("Terminating");
+					model.terminate();
+				}
+				
+				//If loaded, write message
+				model.writeLoadedMessage();
+				//start digestion (model.start() calls AbstractDataSet.digest())
+				model.start();
+				modelStatus = model.getStatus();
+				if(modelStatus == FFError.NoError){ //Error calculating
 					model.save();
 					if(model.getGenerateGraphsStatus()){
 						model.generateGraphs();
 					}
 				}
-				else
+				else // on calculation error
 				{
-					model.writeError("Error loading model "+modelStatus);
-					System.out.println("Terminating");
+					model.writeError("Error calculating model "+modelStatus);
+					System.err.println("Terminating");
 				}
 				model.terminate();
 			}
 		};
-		
+
 		modelThread.start();
 	}
 

@@ -20,6 +20,7 @@ import javafx.scene.control.TextField;
 import javafx.scene.input.DragEvent;
 import javafx.scene.input.Dragboard;
 import javafx.scene.input.TransferMode;
+import javafx.scene.layout.Region;
 import javafx.scene.text.TextFlow;
 import javafx.stage.FileChooser;
 import javafx.stage.Modality;
@@ -30,7 +31,7 @@ import javafx.stage.Stage;
 public class FFController extends FFMain implements Initializable{
 
 	private static final boolean DEBUG = false;
-	
+
 	@FXML
 	private Button SPROXBrowse, SPROX2Browse, DenaturantBrowse, AnalyzeButton;
 
@@ -38,11 +39,11 @@ public class FFController extends FFMain implements Initializable{
 	private TextField SPROXField, SPROX2Field ,DenaturantField;
 
 	@FXML
-	private CheckBox Urea, Graphs, CompareInputs;
+	private CheckBox Urea, Graphs, CompareInputs, Dual;
 
 	@FXML
 	private Group SPROXGroup, SPROX2Group;
-	
+
 	@FXML
 	private MenuItem Reset, Exit;
 
@@ -51,7 +52,7 @@ public class FFController extends FFMain implements Initializable{
 
 	@FXML
 	private ScrollPane FFInfoContainer;
-	
+
 	@FXML
 	private ProgressBar progressBar;
 
@@ -65,11 +66,11 @@ public class FFController extends FFMain implements Initializable{
 		 */
 		Urea.setAllowIndeterminate(false);
 		Graphs.setAllowIndeterminate(false);
-		
+
 		/**
 		 * Add listeners and bindings
 		 */
-		
+
 		/*
 		 * Force FFInfo to scroll down on each append
 		 */
@@ -79,19 +80,45 @@ public class FFController extends FFMain implements Initializable{
 					FFInfoContainer.layout();
 					FFInfoContainer.setVvalue(1.0f);
 				}));
-		
+		FFInfo.setPrefWidth(Region.USE_COMPUTED_SIZE);
+
+		/*
+		 * Disable 2nd sprox field if CompareInputs not selected
+		 */
 		CompareInputs.selectedProperty().addListener(new ChangeListener<Boolean>(){
 			@Override
 			public void changed(ObservableValue<? extends Boolean> observable,
 					Boolean oldValue, Boolean newValue) {
 				SPROX2Group.setDisable(!newValue);
 				SPROX2Field.setText("");
+				Dual.setDisable(newValue);
+				if(newValue == true){//false -> true
+					Dual.setSelected(!newValue);
+					
+				}
 			}
 		});
-		
+
+		/*
+		 * Disable analyze button if nothing in 1st Sprox / Denaturants
+		 */
 		AnalyzeButton.disableProperty().bind(Bindings.or(SPROXGroup.disabledProperty(),Bindings.or(SPROXField.textProperty().isEqualTo(""), 
 				Bindings.and(CompareInputs.selectedProperty(), SPROX2Field.textProperty().isEqualTo("")))));
-		
+
+		/*
+		 * Only allow Dual or CompareInputs to be selected, not both
+		 */
+
+		Dual.selectedProperty().addListener(new ChangeListener<Boolean>(){
+			@Override
+			public void changed(ObservableValue<? extends Boolean> observable, Boolean oldVal, Boolean newVal){
+				CompareInputs.setDisable(newVal);
+				if(newVal == true){ // false -> true
+					CompareInputs.setSelected(!newVal);
+				}
+			}
+		});
+
 		/*
 		 * Write Greeting
 		 */
@@ -102,7 +129,7 @@ public class FFController extends FFMain implements Initializable{
 		String version = System.getProperty("os.version");
 		TextFlowWriter.writeInfo("Hello "+name, FFInfo);
 		TextFlowWriter.writeInfo("I've detected you're running "  +os+" ("+version+", "+arch+")", FFInfo);
-		
+
 
 		if(DEBUG){
 			SPROXField.setText("/Users/jkarnuta/Desktop/10-16-12 manA Control Data.csv");
@@ -141,7 +168,7 @@ public class FFController extends FFMain implements Initializable{
 		setupDragOver(SPROXField);
 		setupDragDrop(SPROXField);
 	}
-	
+
 	private void initSPROX2Field(){
 		setupDragOver(SPROX2Field);
 		setupDragDrop(SPROX2Field);
@@ -188,11 +215,11 @@ public class FFController extends FFMain implements Initializable{
 	public void SPROXOnDragExited(){
 		TextFieldOnDragExited(SPROXField);
 	}
-	
+
 	public void SPROX2OnDragEntered(){
 		TextFieldOnDragEntered(SPROX2Field);
 	}
-	
+
 	public void SPROX2OnDragExited(){
 		TextFieldOnDragExited(SPROX2Field);
 	}
@@ -218,7 +245,7 @@ public class FFController extends FFMain implements Initializable{
 	public void SPROXButtonOnAction(){
 		fetchFile(SPROXField, "Select SPROX csv");
 	}
-	
+
 	public void SPROX2ButtonOnAction(){
 		fetchFile(SPROX2Field, "Select SPROX csv for Comparison");
 	}
@@ -243,19 +270,19 @@ public class FFController extends FFMain implements Initializable{
 		}
 
 	}
-	
+
 	/**
 	 * Analyze On Action
 	 */
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public void AnalyzeOnAction(){
-		
+
 		/*
 		 * Clear TextFlow
 		 */
-		
+
 		TextFlowWriter.clear(FFInfo);
-		
+
 		/*
 		 * Build constants for constructors
 		 */
@@ -264,15 +291,28 @@ public class FFController extends FFMain implements Initializable{
 		String SPROX1 = SPROXField.getText();
 		String SPROX2 = SPROX2Field.getText();
 		String denaturants = DenaturantField.getText();
-		
-		IFFModel model;
+
+		AbstractFFModel model;
+		AbstractDataSet dataset;
+		//Compare two files of type Singlets
 		if (CompareInputs.isSelected()){
 			System.err.println("Not Implemented");
 			TextFlowWriter.writeError("FFModelDoublet is not yet implemented", FFInfo);
-			model = new FFModelDoublet();
+			model = new FFModelDoublet(SPROX1, SPROX2,denaturants, FFInfo, genGraphs, midpointdiff);
+			dataset = new DoubletDataSet(SPROX1, denaturants, FFInfo);
+			dataset.addDoubletNature(SPROX2);
 		}
+		
+		//Compare two experiments in one file of type Doublet
+		else if (Dual.isSelected()){
+			model = new FFModelDualSinglet(SPROX1, denaturants, FFInfo, genGraphs, midpointdiff);
+			dataset = new DualSingletDataSet(SPROX1, denaturants, FFInfo);
+		}
+		
+		//Default option
 		else{
-			model = new FFModelSinglet(SPROX1, denaturants, FFInfo, genGraphs);
+			model = new FFModelSinglet(SPROX1, denaturants, FFInfo, genGraphs, midpointdiff);
+			dataset = new SingletDataSet(SPROX1, denaturants, FFInfo);
 		}
 		/*
 		 * Add bindings for communication between model and controller
@@ -285,13 +325,15 @@ public class FFController extends FFMain implements Initializable{
 				SPROXGroup.setDisable((boolean) newValue);
 			}
 		});
+		
 		progressBar.progressProperty().bind(model.progressProperty());
+		model.load(dataset);
 		super.loadAndStart(model);
 	}
 	/**
 	 * Getter Methods
 	 */
-	
+
 	public ProgressBar getProgressBar(){
 		return progressBar;
 	}

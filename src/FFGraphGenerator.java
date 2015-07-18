@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.math.RoundingMode;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.List;
 
 import javafx.concurrent.Task;
 import javafx.scene.text.TextFlow;
@@ -15,11 +16,9 @@ import org.jfree.chart.ChartUtilities;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.LegendItem;
 import org.jfree.chart.LegendItemCollection;
-import org.jfree.chart.annotations.XYAnnotation;
 import org.jfree.chart.annotations.XYTextAnnotation;
 import org.jfree.chart.axis.NumberAxis;
 import org.jfree.chart.axis.NumberTickUnit;
-import org.jfree.chart.plot.Marker;
 import org.jfree.chart.plot.ValueMarker;
 import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.renderer.xy.XYItemRenderer;
@@ -28,7 +27,6 @@ import org.jfree.data.xy.XYDataItem;
 import org.jfree.data.xy.XYDataset;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
-import org.jfree.ui.RectangleAnchor;
 import org.jfree.ui.TextAnchor;
 
 
@@ -41,16 +39,18 @@ import org.jfree.ui.TextAnchor;
  */
 public class FFGraphGenerator extends Task<ArrayList<GraphStatus>> {
 
-	private final ArrayList<String[]> runs;
+	private final List<Chartable> runs;
 	private final Double[] denaturants;
 	private final String dirPath;
 	private final TextFlow output;
+	private final int offset;
 
-	public FFGraphGenerator(ArrayList<String[]> runs, Double[] denaturants, String directoryPath, TextFlow tf){
-		this.runs = runs;
+	public FFGraphGenerator(List<Chartable> chartsList, Double[] denaturants, String directoryPath, int offset ,TextFlow tf){
+		this.runs = chartsList;
 		this.denaturants = denaturants;
 		this.dirPath = directoryPath; //need to split to get enclosing directory
 		this.output = tf; //used to alert user to current graph progress
+		this.offset = offset;
 	}
 
 	public ArrayList<GraphStatus> call(){
@@ -60,35 +60,24 @@ public class FFGraphGenerator extends Task<ArrayList<GraphStatus>> {
 	public ArrayList<GraphStatus> generate(ArrayList<GraphStatus> errorList){
 
 		/*Initialize Constants*/
-		int currentChartNumber = 2;
-		int numberIntensities = this.denaturants.length;
+		int currentChartNumber = offset+2;
 		int numberIterations =this.runs.size()-currentChartNumber; 
 		DecimalFormat truncation = new DecimalFormat("#.###");
 		truncation.setRoundingMode(RoundingMode.FLOOR);
 
 		/*Create directory*/
+		new File(this.dirPath).mkdirs();//create the directory at the specified location with the correct name
 
-		//split dirPath to get enclosing directory
-		String[] directoryLocationArray = this.dirPath.split(File.separator);
-		StringBuilder directory = new StringBuilder();
-		for (int i = 0; i < directoryLocationArray.length-1; i++) 
-			directory.append(directoryLocationArray[i]+File.separator);
-
-		//add filename (omit .csv)
-		directory.append(directoryLocationArray[directoryLocationArray.length-1].split("\\.")[0]);
-		String directoryPath = directory.toString();
-		new File(directoryPath).mkdirs();//create the directory at the specified location with the correct name
-
-		TextFlowWriter.writeInfo("Drawing graphs to "+directoryPath+File.separator, this.output);
+		TextFlowWriter.writeInfo("Drawing graphs to "+this.dirPath+File.separator, this.output);
 		TextFlowWriter.writeInfo("", this.output);//needed for proper usage of TextFlowWriter.removeLast
 		/*Generate Graphs*/
-		for (String[] ele : this.runs){
+		for (Chartable chartable : this.runs){
 			/*Alert User */
 			TextFlowWriter.removeLast(this.output);
 			TextFlowWriter.writeInfo("Drawing #"+currentChartNumber+" / "+this.runs.size(), this.output);
 
 			/*Set up Constants*/
-			Chartable chartable = new Chartable(ele, numberIntensities);
+			chartable.setGraphNumber(currentChartNumber);
 			String chartTitle = chartable.peptide+" ("+chartable.protein+")";
 			String xAxisLabel = "Denaturant Concentration (M)";
 			String yAxisLabel = "Normalized Intensities";
@@ -121,12 +110,15 @@ public class FFGraphGenerator extends Task<ArrayList<GraphStatus>> {
 			/*Set up Axis*/
 			NumberAxis domainAxis = new NumberAxis(xAxisLabel);
 			domainAxis.setVerticalTickLabels(true);
-			domainAxis.setTickUnit(new NumberTickUnit(0.1));
+			domainAxis.setTickUnit(new NumberTickUnit(0.2));
 			domainAxis.setLowerMargin(0.1);
 			domainAxis.setUpperMargin(0.1);
 			domainAxis.setAutoRangeIncludesZero(false);
 			NumberAxis rangeAxis = new NumberAxis(yAxisLabel);
+			rangeAxis.setTickUnit(new NumberTickUnit(0.1));
 			rangeAxis.setAutoRangeIncludesZero(false);
+			rangeAxis.setUpperBound(FFMath.max(chartable.intensities)+0.03);
+			rangeAxis.setLowerBound(FFMath.min(chartable.intensities)-0.03);
 
 			XYPlot plt = new XYPlot();
 			/*Set Axes*/
@@ -152,13 +144,13 @@ public class FFGraphGenerator extends Task<ArrayList<GraphStatus>> {
 			JFreeChart chart = new JFreeChart(chartTitle, plt);
 
 			try {
-				File PNGFile = new File(directoryPath + File.separator+"Image "+currentChartNumber+".png");
-				ChartUtilities.saveChartAsPNG(PNGFile, chart, 1000, 500);
+				File PNGFile = new File(this.dirPath + File.separator+"Image "+currentChartNumber+".png");
+				ChartUtilities.saveChartAsPNG(PNGFile, chart, 500, 400);
 				errorList.add(new GraphStatus(currentChartNumber, FFError.NoError));
 			} catch (IOException e) {
 				errorList.add(new GraphStatus(currentChartNumber, FFError.GraphGenerationError));
 				e.printStackTrace();
-			}
+			} 
 			updateProgress(currentChartNumber,numberIterations);
 			currentChartNumber++;
 		}
@@ -210,64 +202,5 @@ public class FFGraphGenerator extends Task<ArrayList<GraphStatus>> {
 				2.0f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND,
 				1.0f, new float[] {6.0f, 6.0f}, 0.0f
 				);
-	}
-
-	private class Chartable{
-		public String peptide;
-		public String protein;
-		public double[] intensities;
-		public double A;
-		public double B;
-		public double chalf;
-		public double b;
-		public double adjRSquared;
-		public Chartable(String[] run, int numIntensities){
-			peptide = run[0];
-			protein = run[1];
-			//2=intsum, 3=rt(min)
-
-			//populate intensities
-			intensities = new double[numIntensities];
-			int offset = 4;
-			for(int i = 0; i < numIntensities; i++){
-				intensities[i] = Double.parseDouble(run[i+offset]);
-			}
-
-			//chalf is fifth from last
-			chalf = Double.parseDouble(run[run.length-5]);
-
-			//b is third from last
-			b = Double.parseDouble(run[run.length-3]);
-
-			//adjusted R Squared is the last value
-			adjRSquared = Double.parseDouble(run[run.length-1]);
-
-			//A is calculated from DataRun
-			//B is calculated from DataRun
-			/*
-			 * determine if curve is oxidized or not based on heuristics
-			 * assume to be non-oxidized if first two points average to be greater than 1.0
-			 */
-			boolean nonOx =  (intensities[0] + intensities[1])/2 > 1.0;
-			if (nonOx){
-				A = FFMath.max(intensities);
-				B = FFMath.min(intensities);
-			}
-			else{
-				A = FFMath.min(intensities);
-				B = FFMath.max(intensities);
-			}
-		}
-		public String toString(){
-			StringBuilder sb = new StringBuilder();
-			sb.append("Chartable object:\n");
-			sb.append("peptide (protein): "+peptide+" ("+protein+")\n");
-			sb.append("C 1/2: "+chalf+"\n");
-			sb.append("b: "+b+"\n");
-			sb.append("A: "+A+"\n");
-			sb.append("B: "+B+"\n");
-			sb.append("Adjusted R Squared: "+adjRSquared+"\n");
-			return sb.toString();
-		}
 	}
 }

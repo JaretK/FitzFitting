@@ -2,9 +2,8 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Calendar;
+import java.util.List;
 
 import javafx.concurrent.Task;
 
@@ -17,13 +16,13 @@ import javafx.concurrent.Task;
  */
 public class FFModelSave extends Task<FFError>{
 
-	private final String[] header;
-	private final ArrayList<String[]> runs;
+	private final List<String[]> headers;
+	private final List<String[]> runs;
 	private final String initialFilePath;
 	private String savedFilePath;
 
-	public FFModelSave(String[] header, ArrayList<String[]> runs, String initialFilePath){
-		this.header = header;
+	public FFModelSave(List<String[]> headers, List<String[]> runs, String initialFilePath){
+		this.headers = headers;
 		this.runs = runs;
 		this.initialFilePath = initialFilePath;
 		this.savedFilePath = "unknown";
@@ -32,7 +31,7 @@ public class FFModelSave extends Task<FFError>{
 	public String getSavedFilePath(){
 		return this.savedFilePath;
 	}
-	
+
 	@Override 
 	public FFError call(){
 		return save();
@@ -43,14 +42,16 @@ public class FFModelSave extends Task<FFError>{
 		File newFile = new File(this.savedFilePath);
 		long totalIterations = this.runs.size()-1; //ignoring header
 		long currentIteration = 0;
-		
+
 		try {
 			FileWriter fw = new FileWriter(newFile);
-			
+
 			//write header
-			fw.write(stringArrayToCSV(this.header));
-			fw.write("\n");
-			
+			for (String[] ele : this.headers){
+				fw.write(stringArrayToCSV(ele));
+				fw.write("\n");
+			}
+
 			//loop through runs and write each to file
 			for (String[] run : runs){
 				fw.write(stringArrayToCSV(run));
@@ -58,16 +59,16 @@ public class FFModelSave extends Task<FFError>{
 				currentIteration++;
 				updateProgress(currentIteration, totalIterations);
 			}
-			
+
 			fw.flush();
 			fw.close();
-			
+
 		} catch (IOException e) {
 			e.printStackTrace();
 			return FFError.FileSaveError;
-			
+
 		}
-		
+
 		return FFError.NoError;
 	}
 
@@ -93,7 +94,7 @@ public class FFModelSave extends Task<FFError>{
 		return format.format(cal.getTime());
 	}
 
-	
+
 	/**
 	 * mimics sep.join(array) from python
 	 * @param arr - array to put between seps
@@ -110,7 +111,7 @@ public class FFModelSave extends Task<FFError>{
 		}
 		return sb.toString();
 	}
-	
+
 	/**
 	 * Converts a string array into a CSV readable string
 	 * String[]{"x","y","z"} ==> "x,y,z"
@@ -122,6 +123,6 @@ public class FFModelSave extends Task<FFError>{
 		for (String ele : array){
 			sb.append( "," + ele );
 		}
-		return sb.substring(1); // clip the first comma
+		return (sb.length() > 1) ? sb.substring(1) : sb.toString(); // clip the first comma
 	}
 }

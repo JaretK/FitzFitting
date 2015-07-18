@@ -1,4 +1,4 @@
-import javafx.beans.property.SimpleBooleanProperty;
+import javafx.scene.text.TextFlow;
 
 
 
@@ -11,7 +11,15 @@ import javafx.beans.property.SimpleBooleanProperty;
  */
 
 
-public class FFModelDoublet implements IFFModel{
+public class FFModelDoublet extends AbstractFFModel{
+	
+	private final String SPROX2;
+
+	public FFModelDoublet(String SPROX1,String SPROX2 ,String denaturantPath, TextFlow tf,
+			boolean generateGraphs, double midpoint) {
+		super(SPROX1, denaturantPath, tf, generateGraphs, midpoint);
+		this.SPROX2 = SPROX2;
+	}
 
 	@Override
 	public void start() {
@@ -26,21 +34,15 @@ public class FFModelDoublet implements IFFModel{
 	}
 
 	@Override
-	public void terminate() {
+	public void save() {
 		// TODO Auto-generated method stub
 		
 	}
 
 	@Override
-	public FFError getStatus() {
+	public void generateGraphs() {
 		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public SimpleBooleanProperty runningProperty() {
-		// TODO Auto-generated method stub
-		return null;
+		
 	}
 	
 }
