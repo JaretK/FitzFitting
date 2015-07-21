@@ -1,5 +1,6 @@
 import java.io.File;
 import java.util.ArrayList;
+import java.util.List;
 
 import javafx.application.Platform;
 import javafx.scene.text.Text;
@@ -60,22 +61,16 @@ public class FFModelSinglet extends AbstractFFModel{
 	 */
 	public void generateGraphs(){
 
-		//If somehow called before saving / saving failed, default to passed filepath
-		String filePathToPass = (this.savedFilePath.equals("")) ? this.SPROX1 : this.savedFilePath;
+		String superPath = super.savedFilePath.equals("") ? this.SPROX1 : this.savedFilePath;
+		superPath = splitIntoDirectory(superPath);
+		new File(superPath).mkdirs(); //initialize superpath
+		final String graphsPath = superPath + File.separator + "Graphs";
 		
-		//alter filePathToPass to get the enclosing directory of the sprox file
-		//split dirPath to get enclosing directory
-		String[] directoryLocationArray = filePathToPass.split(File.separator);
-		StringBuilder directory = new StringBuilder();
-		for (int i = 0; i < directoryLocationArray.length-1; i++) 
-			directory.append(directoryLocationArray[i]+File.separator);
-		
-		//add filename (omit .csv)
-		directory.append(directoryLocationArray[directoryLocationArray.length-1].split("\\.")[0]);
-		String directoryPath = directory.toString();
-
+		/**
+		 * Generate individual run plots
+		 */
 		//Instantiate FFGraphGenerator object
-		FFGraphGenerator ffgg = new FFGraphGenerator(this.data.getChartables1(), this.data.getDenaturants(), directoryPath, this.data.getOffset1() ,this.output);
+		FFSingleGraphGenerator ffgg = new FFSingleGraphGenerator(this.data.getChartables1(), this.data.getDenaturants(), graphsPath, this.data.getOffset1() ,this.output);
 
 		TextFlowWriter.writeInfo("Generating Graphs", this.output);
 		//disable buttons and text fields to wait until graph generation is over
@@ -105,6 +100,49 @@ public class FFModelSinglet extends AbstractFFModel{
 			String pluralRuns = numMissing == 1 ? "run" : "runs";
 			TextFlowWriter.writeError(numMissing+" "+pluralRuns+" unaccounted for", this.output);
 		}
+		
+		
+		/**
+		 * Generate Histograms
+		 */
+		TextFlowWriter.writeInfo("Generating Histograms...", this.output);
+		
+		/*Generate C 1/2 Histogram*/
+		List<Double> cHalfValues = new ArrayList<Double>();
+		List<Double> bValues = new ArrayList<Double>();
+		for (Chartable chartable: super.data.chartables1){
+			cHalfValues.add(chartable.chalf);
+			bValues.add(chartable.b);
+		}
+		TextFlowWriter.writeInfo("Calculating C 1/2", this.output);
+		FFHistogramGenerator chalfGenerator = new FFHistogramGenerator(cHalfValues, "Midpoint Histogram",superPath);
+		FFError chalfHistogramError = chalfGenerator.call();
+		
+		TextFlowWriter.removeLast(this.output);
+		TextFlowWriter.writeInfo("Calculating b", this.output);
+		FFHistogramGenerator bGenerator = new FFHistogramGenerator(bValues, "b Histogram", superPath);
+		FFError bHistogramError = bGenerator.call();
+		
+		if(chalfHistogramError == FFError.NoError && bHistogramError == FFError.NoError){
+			TextFlowWriter.removeLast(this.output);
+			TextFlowWriter.writeSuccess("Successfully drew histograms", this.output);
+		}
+		else{
+			TextFlowWriter.removeLast(this.output);
+			TextFlowWriter.writeError("Error drawing histograms", this.output);
+		}
+	}
+	private String splitIntoDirectory(String initialPath){
+		//split dirPath to get enclosing directory
+		String[] directoryLocationArray = initialPath.split(File.separator);
+		StringBuilder directory = new StringBuilder();
+		for (int i = 0; i < directoryLocationArray.length-1; i++) 
+			directory.append(directoryLocationArray[i]+File.separator);
+
+		//add filename (omit .csv)
+		System.out.println(directory.toString());
+		directory.append(directoryLocationArray[directoryLocationArray.length-1].split("\\.")[0]);
+		return directory.toString();
 	}
 
 

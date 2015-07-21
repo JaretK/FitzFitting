@@ -1,5 +1,6 @@
 import java.io.File;
 import java.util.ArrayList;
+import java.util.List;
 
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
@@ -71,14 +72,13 @@ public class FFModelDualSinglet extends AbstractFFModel{
 		String superPath = super.savedFilePath.equals("") ? this.SPROX1 : this.savedFilePath;
 		superPath = splitIntoDirectory(superPath);
 		new File(superPath).mkdirs(); //initialize superpath
-		final String leftPath = superPath + File.separator + "Left Experiment";
-		final String rightPath = superPath + File.separator + "Right Experiment";
+		final String graphsPath = superPath + File.separator + "Graphs";
 
-		FFGraphGenerator ffggLeft = new FFGraphGenerator(super.data.getChartables1(), 
-				super.data.getDenaturants(), leftPath, super.data.getOffset1(),
-				super.output);
-		FFGraphGenerator ffggRight = new FFGraphGenerator(super.data.getChartables2(),
-				super.data.getDenaturants(), rightPath, super.data.getOffset2(), 
+		/**
+		 * Generate run graphs
+		 */
+		FFDualGraphGenerator ffdgg = new FFDualGraphGenerator(super.data.getChartables1(), super.data.getChartables2(), 
+				super.data.getDenaturants(), graphsPath, super.data.getOffset1(),
 				super.output);
 
 		TextFlowWriter.writeInfo("Generating graphs", super.output);
@@ -87,45 +87,79 @@ public class FFModelDualSinglet extends AbstractFFModel{
 		Platform.runLater(()->{
 			running.set(true);
 			progress.unbind();
-			progress.bind(ffggLeft.progressProperty());
+			progress.bind(ffdgg.progressProperty());
 		});
 		//generate graphs and return errors
-		TextFlowWriter.writeInfo("\nGenerating left experiment graphs (1/2)", super.output);
-		ArrayList<GraphStatus> successListLeft = ffggLeft.call();
-		
-		Platform.runLater(()->{
-			progress.unbind();
-			progress.bind(ffggRight.progressProperty());
-		});
-		TextFlowWriter.writeInfo("\nGenerating right experiment graphs (2/2)", super.output);
-		ArrayList<GraphStatus> successListRight = ffggRight.call();
+		TextFlowWriter.writeInfo("\nGenerating experiment graphs", super.output);
+		ArrayList<GraphStatus> successList = ffdgg.call();
+
 		//check errors
 		int numberErrors = 0;
-		for (GraphStatus ele : successListLeft){
+		for (GraphStatus ele : successList){
 			if (ele.getStatus() != FFError.NoError) {
 				TextFlowWriter.writeError("Error Generating Graph #"+ele.getNumber(), this.output);
 				numberErrors++;
 			}
 		}
-		for (GraphStatus ele : successListRight){
-			if (ele.getStatus() != FFError.NoError) {
-				TextFlowWriter.writeError("Error Generating Graph #"+ele.getNumber(), this.output);
-				numberErrors++;
-			}
-		}
+
 		//successful alert
-		System.out.println(numberErrors);
-		System.out.println(successListLeft.size());
-		System.out.println(successListRight.size());
-		System.out.println(super.data.getRuns1().size());
-		if(numberErrors == 0 && successListLeft.size() == successListRight.size())
-			TextFlowWriter.writeSuccess("Successfully generated "+this.data.getRuns1().size() + " graphs", this.output);
-		//alert if any charts are missing
-		else{
-			int numMissing = (this.data.getRuns1().size() - successListLeft.size());
-			String pluralRuns = numMissing == 1 ? "run" : "runs";
-			TextFlowWriter.writeError(numMissing+" "+pluralRuns+" unaccounted for", this.output);
+		if(numberErrors == 0)
+			TextFlowWriter.writeSuccess("Successfully generated "+successList.size() + " graphs", this.output);
+
+
+		/**
+		 * Generate Histograms
+		 */
+		TextFlowWriter.writeInfo("Generating Histograms...", this.output);
+
+		List<FFError> histoErrors = new ArrayList<FFError>();
+		/*Generate Control Data*/
+		List<Double> cHalfValues = new ArrayList<Double>();
+		List<Double> bValues = new ArrayList<Double>();
+		for (Chartable chartable: super.data.chartables1){
+			cHalfValues.add(chartable.chalf);
+			bValues.add(chartable.b);
 		}
+		TextFlowWriter.writeInfo("Calculating C 1/2", this.output);
+		FFHistogramGenerator chalfGenerator = new FFHistogramGenerator(cHalfValues, "Control C Midpoint Histogram",superPath);
+		histoErrors.add(chalfGenerator.call());
+
+		TextFlowWriter.removeLast(this.output);
+		TextFlowWriter.writeInfo("Calculating b", this.output);
+		FFHistogramGenerator bGenerator = new FFHistogramGenerator(bValues, "Control b Histogram", superPath);
+		histoErrors.add(bGenerator.call());
+
+		/*Generate ligand Data*/
+		cHalfValues = new ArrayList<Double>();
+		bValues = new ArrayList<Double>();
+		for (Chartable chartable: super.data.chartables2){
+			cHalfValues.add(chartable.chalf);
+			bValues.add(chartable.b);
+		}
+		TextFlowWriter.writeInfo("Calculating C 1/2", this.output);
+		FFHistogramGenerator chalfLigandGenerator = new FFHistogramGenerator(cHalfValues, "Ligand Midpoint Histogram",superPath);
+		histoErrors.add(chalfLigandGenerator.call());
+
+		TextFlowWriter.removeLast(this.output);
+		TextFlowWriter.writeInfo("Calculating b", this.output);
+		FFHistogramGenerator bLigandGenerator = new FFHistogramGenerator(bValues, "Ligand b Histogram", superPath);
+		histoErrors.add(bLigandGenerator.call());
+
+		numberErrors = 0; //reset
+		for (FFError ffe : histoErrors){
+			if (ffe != FFError.NoError)
+				numberErrors++;
+		}
+		if(numberErrors == 0){ //success
+			TextFlowWriter.removeLast(this.output);
+			TextFlowWriter.writeSuccess("Successfully drew histograms", this.output);
+		}
+		else{
+			TextFlowWriter.removeLast(this.output);
+			TextFlowWriter.writeError("Error drawing histograms", this.output);
+		}
+
+
 	}
 	private String splitIntoDirectory(String initialPath){
 		//split dirPath to get enclosing directory

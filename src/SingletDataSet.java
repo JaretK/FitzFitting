@@ -138,18 +138,17 @@ public class SingletDataSet extends AbstractDataSet {
 				if(run[0].length() > 0){
 					SingletPeptideContainer pc = new SingletPeptideContainer(run, super.getDenaturants(), numberIdentifiers);
 					DataRun r = new DataRun(pc.intensities, this.DenaturantConcentrations);
-					r.call();
+					SingleFit calculatedFit = r.call();
 					while(r.isRunning()){
 					}
-					double[] calculatedRun = r.getCalculatedValues();
-					pc.parseCalculatedValues(calculatedRun);
+					pc.parseCalculatedValues(calculatedFit);
 					//append calculatedRun to data, add a space at end
-					String[] newRun = new String[calculatedRun.length + run.length + 1];
+					String[] newRun = new String[calculatedFit.array.length + run.length + 1];
 					for (int j = 0; j < run.length; j ++){
 						newRun[j] = run[j];
 					}
-					for (int j = run.length; j < calculatedRun.length + run.length; j++){
-						newRun[j] = String.valueOf(calculatedRun[j - run.length]);
+					for (int j = run.length; j < calculatedFit.array.length + run.length; j++){
+						newRun[j] = String.valueOf(calculatedFit.array[j - run.length]);
 					}
 					newRun[newRun.length-1] = "";
 					runs1.set(i, newRun);
@@ -174,12 +173,14 @@ public class SingletDataSet extends AbstractDataSet {
 		public double intsum;
 		public double rt;
 		public double[] intensities;
+		public int indexRemoved;
 		
 		/*Calculated Values*/
 		public double chalf;
 		public double b;
 		public double adjRSq;
 			
+		
 		public SingletPeptideContainer(String[] list, Double[] denaturants
 				, final int offset){
 			this.intensities = new double[denaturants.length];
@@ -200,16 +201,19 @@ public class SingletDataSet extends AbstractDataSet {
 
 		public Chartable toChartable() {
 			return new Chartable(this.peptide, this.protein, this.intensities,
-					this.denaturants,this.chalf, this.b, this.adjRSq);
+					this.denaturants,this.chalf, this.b, this.adjRSq, this.indexRemoved);
 		}
 		
-		public void parseCalculatedValues(double[] arr){
+		public void parseCalculatedValues(SingleFit sf){
 			/*
 			 * Will always present chalf, chalf sd, b, b sd, adjrsq
 			 */
+			double[] arr = sf.array;
 			this.chalf = arr[0];
 			this.b = arr[2];
 			this.adjRSq = arr[4];
+			this.indexRemoved = sf.removedValue;
+			
 		}
 	}
 

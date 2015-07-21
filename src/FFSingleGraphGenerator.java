@@ -1,6 +1,7 @@
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Font;
+import java.awt.Shape;
 import java.awt.geom.Line2D;
 import java.io.File;
 import java.io.IOException;
@@ -28,6 +29,7 @@ import org.jfree.data.xy.XYDataset;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
 import org.jfree.ui.TextAnchor;
+import org.jfree.util.ShapeUtilities;
 
 
 
@@ -37,7 +39,7 @@ import org.jfree.ui.TextAnchor;
  * @author jkarnuta
  *
  */
-public class FFGraphGenerator extends Task<ArrayList<GraphStatus>> {
+public class FFSingleGraphGenerator extends Task<ArrayList<GraphStatus>> {
 
 	private final List<Chartable> runs;
 	private final Double[] denaturants;
@@ -45,7 +47,7 @@ public class FFGraphGenerator extends Task<ArrayList<GraphStatus>> {
 	private final TextFlow output;
 	private final int offset;
 
-	public FFGraphGenerator(List<Chartable> chartsList, Double[] denaturants, String directoryPath, int offset ,TextFlow tf){
+	public FFSingleGraphGenerator(List<Chartable> chartsList, Double[] denaturants, String directoryPath, int offset ,TextFlow tf){
 		this.runs = chartsList;
 		this.denaturants = denaturants;
 		this.dirPath = directoryPath; //need to split to get enclosing directory
@@ -57,6 +59,7 @@ public class FFGraphGenerator extends Task<ArrayList<GraphStatus>> {
 		return generate(new ArrayList<GraphStatus>());
 	}
 
+	@SuppressWarnings("serial")
 	public ArrayList<GraphStatus> generate(ArrayList<GraphStatus> errorList){
 
 		/*Initialize Constants*/
@@ -85,74 +88,91 @@ public class FFGraphGenerator extends Task<ArrayList<GraphStatus>> {
 			/* Set up Scatter*/
 			XYSeries xyScatter = getXYData(chartable);
 			XYDataset scatterDataset = new XYSeriesCollection(xyScatter);
-			XYItemRenderer scatterRenderer = new XYLineAndShapeRenderer(false, true);
-			int scatterIndex = 0;
+			XYItemRenderer scatterRenderer = new XYLineAndShapeRenderer(false, true){
+				@Override
+				public Shape getItemShape(int row, int col){
+					if( row == 0 & col == chartable.indexRemoved){
+						return ShapeUtilities.createDiagonalCross(4, 1);
+					}
+					else{
+						return super.getItemShape(row, col);
+					}
+				}};
+				int scatterIndex = 0;
 
-			/* Set up curve */
-			XYSeries xyCurve = getCurveData(chartable);
-			XYDataset curveDataset = new XYSeriesCollection(xyCurve);
-			XYItemRenderer curveRenderer = new XYLineAndShapeRenderer(true, false);
-			int curveIndex = 1;
+				/* Set up curve */
+				XYSeries xyCurve = getCurveData(chartable);
+				XYDataset curveDataset = new XYSeriesCollection(xyCurve);
+				XYItemRenderer curveRenderer = new XYLineAndShapeRenderer(true, false);
+				int curveIndex = 1;
 
-			/* Set up C 1/2 Value Marker*/
-			ValueMarker chalfMarker = new ValueMarker(chartable.chalf);
-			chalfMarker.setPaint(Color.GREEN);
-			chalfMarker.setStroke(
-					dashedLineStroke());
+				/* Set up C 1/2 Value Marker*/
+				ValueMarker chalfMarker = new ValueMarker(chartable.chalf);
+				chalfMarker.setPaint(Color.GREEN);
+				chalfMarker.setStroke(
+						dashedLineStroke());
 
-			/* Set up AdjRSquared Marker*/
-			String truncatedRSquared = truncation.format(chartable.adjRSquared);
-			final XYTextAnnotation adjRSq = new XYTextAnnotation("Adjusted R Squared: "+truncatedRSquared, 0,0);
-			adjRSq.setPaint(Color.RED);
-			adjRSq.setFont(new Font("expressway.ttf", Font.PLAIN, 12));
-			adjRSq.setTextAnchor(TextAnchor.BOTTOM_LEFT);
+				/* Set up Annotations*/
+				String truncatedRSquared = truncation.format(chartable.adjRSquared);
+				String truncatedCHalf = truncation.format(chartable.chalf);
+				final String RsqString =  "Adjusted R Squared: "+truncatedRSquared;
+				final String chalfString = "C 1/2: "+truncatedCHalf;
+				final String removedPoint = "Excluded Index: "+chartable.indexRemoved;
+				final String combinedString = RsqString+"\n"+chalfString+"\n"+removedPoint;
+				final XYTextAnnotation annotations = new XYTextAnnotation(combinedString, 0,0);
+				annotations.setPaint(Color.BLUE);
+				annotations.setFont(new Font("expressway.ttf", Font.PLAIN, 12));
+				annotations.setTextAnchor(TextAnchor.BOTTOM_LEFT);
 
-			/*Set up Axis*/
-			NumberAxis domainAxis = new NumberAxis(xAxisLabel);
-			domainAxis.setVerticalTickLabels(true);
-			domainAxis.setTickUnit(new NumberTickUnit(0.2));
-			domainAxis.setLowerMargin(0.1);
-			domainAxis.setUpperMargin(0.1);
-			domainAxis.setAutoRangeIncludesZero(false);
-			NumberAxis rangeAxis = new NumberAxis(yAxisLabel);
-			rangeAxis.setTickUnit(new NumberTickUnit(0.1));
-			rangeAxis.setAutoRangeIncludesZero(false);
-			rangeAxis.setUpperBound(FFMath.max(chartable.intensities)+0.03);
-			rangeAxis.setLowerBound(FFMath.min(chartable.intensities)-0.03);
 
-			XYPlot plt = new XYPlot();
-			/*Set Axes*/
-			plt.setDomainAxis(domainAxis);
-			plt.setRangeAxis(rangeAxis);
-			/*Add datasets*/
-			plt.setDataset(scatterIndex, scatterDataset);
-			plt.setRenderer(scatterIndex, scatterRenderer);
-			plt.setDataset(curveIndex, curveDataset);
-			plt.setRenderer(curveIndex, curveRenderer);
-			/*Add / update markers and Annotations*/
-			plt.addDomainMarker(chalfMarker);
-			adjRSq.setX(plt.getDomainAxis().getLowerBound());
-			adjRSq.setY(plt.getRangeAxis().getLowerBound());
-			plt.addAnnotation(adjRSq);
 
-			LegendItem chalfLegend = new LegendItem("C 1/2 Marker", "","","",
-					new Line2D.Double(0,5,10,15), dashedLineStroke(), Color.GREEN);
-			LegendItemCollection newLegend = plt.getLegendItems();
-			newLegend.add(chalfLegend);
-			plt.setFixedLegendItems(newLegend);
+				/*Set up Axis*/
+				NumberAxis domainAxis = new NumberAxis(xAxisLabel);
+				domainAxis.setVerticalTickLabels(true);
+				domainAxis.setTickUnit(new NumberTickUnit(0.2));
+				domainAxis.setLowerMargin(0.1);
+				domainAxis.setUpperMargin(0.1);
+				domainAxis.setAutoRangeIncludesZero(false);
+				NumberAxis rangeAxis = new NumberAxis(yAxisLabel);
+				rangeAxis.setTickUnit(new NumberTickUnit(0.1));
+				rangeAxis.setAutoRangeIncludesZero(false);
+				rangeAxis.setUpperBound(FFMath.max(chartable.intensities)+0.03);
+				rangeAxis.setLowerBound(FFMath.min(chartable.intensities)-0.2);
 
-			JFreeChart chart = new JFreeChart(chartTitle, plt);
+				XYPlot plt = new XYPlot();
+				/*Set Axes*/
+				plt.setDomainAxis(domainAxis);
+				plt.setRangeAxis(rangeAxis);
+				/*Add datasets*/
+				plt.setDataset(scatterIndex, scatterDataset);
+				plt.setRenderer(scatterIndex, scatterRenderer);
+				plt.setDataset(curveIndex, curveDataset);
+				plt.setRenderer(curveIndex, curveRenderer);
+				/*Add / update markers and Annotations*/
+				plt.addDomainMarker(chalfMarker);
+				annotations.setX(plt.getDomainAxis().getLowerBound());
+				annotations.setY(plt.getRangeAxis().getLowerBound());
+				plt.addAnnotation(annotations);
 
-			try {
-				File PNGFile = new File(this.dirPath + File.separator+"Image "+currentChartNumber+".png");
-				ChartUtilities.saveChartAsPNG(PNGFile, chart, 500, 400);
-				errorList.add(new GraphStatus(currentChartNumber, FFError.NoError));
-			} catch (IOException e) {
-				errorList.add(new GraphStatus(currentChartNumber, FFError.GraphGenerationError));
-				e.printStackTrace();
-			} 
-			updateProgress(currentChartNumber,numberIterations);
-			currentChartNumber++;
+
+				LegendItem chalfLegend = new LegendItem("C 1/2 Marker", "","","",
+						new Line2D.Double(0,5,10,15), dashedLineStroke(), Color.GREEN);
+				LegendItemCollection newLegend = plt.getLegendItems();
+				newLegend.add(chalfLegend);
+				plt.setFixedLegendItems(newLegend);
+
+				JFreeChart chart = new JFreeChart(chartTitle, plt);
+
+				try {
+					File PNGFile = new File(this.dirPath + File.separator+"Image "+currentChartNumber+".png");
+					ChartUtilities.saveChartAsPNG(PNGFile, chart, 500, 400);
+					errorList.add(new GraphStatus(currentChartNumber, FFError.NoError));
+				} catch (IOException e) {
+					errorList.add(new GraphStatus(currentChartNumber, FFError.GraphGenerationError));
+					e.printStackTrace();
+				} 
+				updateProgress(currentChartNumber,numberIterations);
+				currentChartNumber++;
 		}
 		TextFlowWriter.removeLast(this.output);
 		return errorList;

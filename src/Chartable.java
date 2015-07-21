@@ -8,11 +8,12 @@ class Chartable{
 	public double chalf;
 	public double b;
 	public double adjRSquared;
+	public int indexRemoved;
 	
 	
 	public Chartable(
 			String peptide, String protein, double[] intensities,
-			double[] denaturants, double chalf, double b, double adjRSquared
+			double[] denaturants, double chalf, double b, double adjRSquared, int indexRemoved
 			){
 		this.peptide = peptide;
 		this.protein = protein;
@@ -30,6 +31,8 @@ class Chartable{
 		this.adjRSquared = adjRSquared;
 
 		this.graphNumber = -1;
+		
+		this.indexRemoved = indexRemoved;
 		
 		assignAAndB();
 	}

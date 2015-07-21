@@ -145,14 +145,10 @@ public class DualSingletDataSet extends AbstractDataSet {
 			DualSingletPeptideContainer pc = new DualSingletPeptideContainer(super.getRuns1().get(i), denaturants, offset);
 			//build the first run from the peptide container
 			DataRun r1 = new DataRun(pc.intensities1, super.getDenaturants());
-			r1.call();
-			while(r1.isRunning()){}
-			pc.calculatedValues1 = r1.getCalculatedValues();
+			pc.calculatedValues1 = r1.call();
 
 			DataRun r2 = new DataRun(pc.intensities2, super.getDenaturants());
-			r2.call();
-			while(r2.isRunning()){}
-			pc.calculatedValues2 = r2.getCalculatedValues();
+			pc.calculatedValues2 = r2.call();
 
 			super.runs1.set(i, pc.toStringArray());
 			super.addChartable1(pc.toChartable1());
@@ -176,12 +172,12 @@ public class DualSingletDataSet extends AbstractDataSet {
 		public double isolationInterference1;
 		public double rt1;
 		public double[] intensities1;
-		public double[] calculatedValues1;
+		public SingleFit calculatedValues1;
 		/*Run 2*/
 		public double isolationInterference2;
 		public double rt2;
 		public double[] intensities2;
-		public double[] calculatedValues2;
+		public SingleFit calculatedValues2;
 
 		public String[] theRest;
 
@@ -220,6 +216,7 @@ public class DualSingletDataSet extends AbstractDataSet {
 		}
 
 		public String[] toStringArray(){
+			@SuppressWarnings("serial")
 			List<String> list = new ArrayList<String>(){{
 				add(peptide);
 				add(accessionNumber);
@@ -229,7 +226,7 @@ public class DualSingletDataSet extends AbstractDataSet {
 				for (double ele : intensities1){
 					add(String.valueOf(ele));
 				}
-				for(double ele : calculatedValues1){
+				for(double ele : calculatedValues1.array){
 					add(String.valueOf(ele));
 				}
 				add(EOF_STRING);
@@ -238,7 +235,7 @@ public class DualSingletDataSet extends AbstractDataSet {
 				for (double ele : intensities2){
 					add(String.valueOf(ele));
 				}
-				for(double ele : calculatedValues2){
+				for(double ele : calculatedValues2.array){
 					add(String.valueOf(ele));
 				}
 				add(EOF_STRING);
@@ -255,23 +252,24 @@ public class DualSingletDataSet extends AbstractDataSet {
 		}
 
 		public Chartable toChartable1() {
-			final double chalf = this.calculatedValues1[0];
-			final double b = this.calculatedValues1[2];
-			final double adjrsq = this.calculatedValues1[4];
+			final double[] calculatedArray1 = this.calculatedValues1.array;
+			final double chalf = calculatedArray1[0];
+			final double b = calculatedArray1[2];
+			final double adjrsq = calculatedArray1[4];
 			return new Chartable(this.peptide, this.accessionNumber, 
-					this.intensities1, this.denaturants, chalf, b, adjrsq);
+					this.intensities1, this.denaturants, chalf, b, adjrsq, this.calculatedValues1.removedValue);
 		}
 		
 		public Chartable toChartable2(){
-			final double chalf = this.calculatedValues2[0];
-			final double b = this.calculatedValues2[2];
-			final double adjrsq = this.calculatedValues2[4];
+			final double[] calculatedArray2 = this.calculatedValues2.array;
+			final double chalf = calculatedArray2[0];
+			final double b = calculatedArray2[2];
+			final double adjrsq = calculatedArray2[4];
 			return new Chartable(this.peptide, this.accessionNumber, 
-					this.intensities2, this.denaturants, chalf, b, adjrsq);
+					this.intensities2, this.denaturants, chalf, b, adjrsq, this.calculatedValues2.removedValue);
 		}
 	}
 	public static void main(String[] args){
-		String[] list = "AASDIAM(OX)TELPPTHPIR	IPI00000816   	2	7.05952	72.4203	0.806951	0.866465	0.906386	1.14257	0.963562	0.927875	1.1608	1.18613	35.4295	60.9922	0.888646	0.893344	0.963743	0.980648	1.0616	1.00323	1.05476	1.11013	-0.081695	-0.026879	-0.057357	0.161922	-0.098038	-0.075355	0.10604	0.076	11.4281".split("\\s+");
 		DualSingletDataSet dsds = new DualSingletDataSet("/Users/jkarnuta/Desktop/Table_S1_revised_02.csv","/Users/jkarnuta/Desktop/manATags.csv",new TextFlow());
 		dsds.load();
 		dsds.digest();
