@@ -34,7 +34,15 @@ public class FFModelSinglet extends AbstractFFModel{
 	 * Writes DataSet.getRuns() to a new file
 	 */
 	public void save(){
-		FFModelSave ffsave = new FFModelSave(this.data.getHeaders1(), this.data.getRuns1(), this.SPROX1);
+		/**
+		 * Make folder for Graphs / Histograms / Analysis / Summary file(s)
+		 */
+		/*Generate the super directory path, which contains all the saved files*/
+		super.superPath = generateDirectoryPath(super.SPROX1) + File.separator;
+		new File(superPath).mkdirs(); //make directory
+		
+		
+		FFModelSave ffsave = new FFModelSave(this.data.getHeaders1(), this.data.getRuns1(), super.superPath);
 
 		//reset progress to use FFModelSave's updateProgress
 		Platform.runLater(()->{
@@ -46,7 +54,6 @@ public class FFModelSinglet extends AbstractFFModel{
 		TextFlowWriter.writeInfo("Saving file...", this.output);
 
 		FFError saveStatus = ffsave.call();
-		savedFilePath  = ffsave.getSavedFilePath();
 		if(saveStatus == FFError.NoError){
 			TextFlowWriter.writeSuccess("Successfully saved "+this.savedFilePath, this.output);
 		}
@@ -61,10 +68,7 @@ public class FFModelSinglet extends AbstractFFModel{
 	 */
 	public void generateGraphs(){
 
-		String superPath = super.savedFilePath.equals("") ? this.SPROX1 : this.savedFilePath;
-		superPath = splitIntoDirectory(superPath);
-		new File(superPath).mkdirs(); //initialize superpath
-		final String graphsPath = superPath + File.separator + "Graphs";
+		final String graphsPath = superPath + "Graphs";
 		
 		/**
 		 * Generate individual run plots
@@ -132,19 +136,6 @@ public class FFModelSinglet extends AbstractFFModel{
 			TextFlowWriter.writeError("Error drawing histograms", this.output);
 		}
 	}
-	private String splitIntoDirectory(String initialPath){
-		//split dirPath to get enclosing directory
-		String[] directoryLocationArray = initialPath.split(File.separator);
-		StringBuilder directory = new StringBuilder();
-		for (int i = 0; i < directoryLocationArray.length-1; i++) 
-			directory.append(directoryLocationArray[i]+File.separator);
-
-		//add filename (omit .csv)
-		System.out.println(directory.toString());
-		directory.append(directoryLocationArray[directoryLocationArray.length-1].split("\\.")[0]);
-		return directory.toString();
-	}
-
 
 	//Called as an indication everything is loaded
 	@Override

@@ -1,3 +1,9 @@
+
+/**
+ * Class that contains all the relevant information for a peptide in each experiment, including midpoint (chalf, c 1/2) values and b values
+ * @author jkarnuta
+ *
+ */
 class Chartable{
 	public String peptide;
 	public String protein;
@@ -6,14 +12,16 @@ class Chartable{
 	public double A;
 	public double B;
 	public double chalf;
+	public double chalfSD;
 	public double b;
+	public double bSD;
 	public double adjRSquared;
 	public int indexRemoved;
 	
 	
 	public Chartable(
 			String peptide, String protein, double[] intensities,
-			double[] denaturants, double chalf, double b, double adjRSquared, int indexRemoved
+			double[] denaturants, double chalf, double chalfSD ,double b, double bSD ,double adjRSquared, int indexRemoved
 			){
 		this.peptide = peptide;
 		this.protein = protein;
@@ -23,9 +31,11 @@ class Chartable{
 
 		//chalf is fifth from last (recall there is a space at end)
 		this.chalf = chalf;
+		this.chalfSD = chalfSD;
 
 		//b is third from last (space)
 		this.b = b;
+		this.bSD = bSD;
 
 		//adjusted R Squared is the last value
 		this.adjRSquared = adjRSquared;

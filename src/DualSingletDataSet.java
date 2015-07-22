@@ -254,19 +254,23 @@ public class DualSingletDataSet extends AbstractDataSet {
 		public Chartable toChartable1() {
 			final double[] calculatedArray1 = this.calculatedValues1.array;
 			final double chalf = calculatedArray1[0];
+			final double chalfSD = calculatedArray1[1];
 			final double b = calculatedArray1[2];
+			final double bSD = calculatedArray1[3];
 			final double adjrsq = calculatedArray1[4];
 			return new Chartable(this.peptide, this.accessionNumber, 
-					this.intensities1, this.denaturants, chalf, b, adjrsq, this.calculatedValues1.removedValue);
+					this.intensities1, this.denaturants, chalf, chalfSD ,b, bSD ,adjrsq, this.calculatedValues1.removedValue);
 		}
 		
 		public Chartable toChartable2(){
 			final double[] calculatedArray2 = this.calculatedValues2.array;
 			final double chalf = calculatedArray2[0];
+			final double chalfSD = calculatedArray2[1];
 			final double b = calculatedArray2[2];
+			final double bSD = calculatedArray2[3];
 			final double adjrsq = calculatedArray2[4];
 			return new Chartable(this.peptide, this.accessionNumber, 
-					this.intensities2, this.denaturants, chalf, b, adjrsq, this.calculatedValues2.removedValue);
+					this.intensities2, this.denaturants, chalf, chalfSD ,b, bSD ,adjrsq, this.calculatedValues2.removedValue);
 		}
 	}
 	public static void main(String[] args){

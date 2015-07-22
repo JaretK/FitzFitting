@@ -4,7 +4,7 @@ public class SingleFit implements Comparable<SingleFit>{
 	public final int removedValue;
 	public SingleFit(double[] arr, int removedValue){
 		this.array = arr;
-		this. removedValue = removedValue;
+		this.removedValue = removedValue;
 	}
 	
 	@Override

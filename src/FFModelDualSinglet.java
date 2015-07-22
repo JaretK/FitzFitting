@@ -3,8 +3,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javafx.application.Platform;
-import javafx.beans.binding.Bindings;
-import javafx.beans.property.SimpleDoubleProperty;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
 
@@ -45,9 +43,20 @@ public class FFModelDualSinglet extends AbstractFFModel{
 	}
 
 	@Override
-	public void save() {
+	public void save() {	
+		
+		/**
+		 * Make folder for Graphs / Histograms / Analysis / Summary file(s)
+		 */
+		/*Generate the super directory path, which contains all the saved files*/
+		super.superPath = generateDirectoryPath(super.SPROX1) + File.separator;
+		new File(superPath).mkdirs(); //make directory
+		
+		/**
+		 * Save main CalculatedParameters.csv
+		 */
 		// TODO Auto-generated method stub
-		FFModelSave ffsave = new FFModelSave(super.data.getHeaders1(), this.data.getRuns1(), this.SPROX1);
+		FFModelSave ffsave = new FFModelSave(super.data.getHeaders1(), this.data.getRuns1(), super.superPath);
 
 		Platform.runLater(()->{
 			super.progress.unbind();
@@ -56,23 +65,44 @@ public class FFModelDualSinglet extends AbstractFFModel{
 		TextFlowWriter.writeInfo("Saving file...", super.output);
 
 		FFError saveStatus = ffsave.call();
-		super.savedFilePath = ffsave.getSavedFilePath();
 		if(saveStatus == FFError.NoError){
 			TextFlowWriter.writeSuccess("Successfully saved "+super.savedFilePath, super.output);
 		}
 		else{
 			writeError("Error saving file: "+saveStatus);
 		}
+		
+		/**
+		 * As this is a Dual experiment file, a comparison is generated from the chartables stored in data
+		 */
+		
+		TextFlowWriter.writeInfo("Calculating Analysis File", this.output);
+		
+		FFChartableComparator ffcc = new FFChartableComparator(super.data.chartables1, super.data.chartables2,
+				super.data.headers1, super.superPath, super.output);
+		
+		Platform.runLater(()->{
+			super.progress.unbind();
+			super.progress.bind(ffcc.progressProperty());
+		});
+		
+		ComparisonSummary compSummary = ffcc.call();
+		
+		if(compSummary != null){
+			TextFlowWriter.writeSuccess("Successfully compared runs", this.output);
+		}
+		else{
+			TextFlowWriter.writeError("Error comparing runs", this.output);
+		}
+
+		
 	}
 
 	@Override
 	public void generateGraphs() {
 		// TODO Auto-generated method stub
 
-		String superPath = super.savedFilePath.equals("") ? this.SPROX1 : this.savedFilePath;
-		superPath = splitIntoDirectory(superPath);
-		new File(superPath).mkdirs(); //initialize superpath
-		final String graphsPath = superPath + File.separator + "Graphs";
+		final String graphsPath = superPath + "Graphs";
 
 		/**
 		 * Generate run graphs
@@ -161,17 +191,4 @@ public class FFModelDualSinglet extends AbstractFFModel{
 
 
 	}
-	private String splitIntoDirectory(String initialPath){
-		//split dirPath to get enclosing directory
-		String[] directoryLocationArray = initialPath.split(File.separator);
-		StringBuilder directory = new StringBuilder();
-		for (int i = 0; i < directoryLocationArray.length-1; i++) 
-			directory.append(directoryLocationArray[i]+File.separator);
-
-		//add filename (omit .csv)
-		System.out.println(directory.toString());
-		directory.append(directoryLocationArray[directoryLocationArray.length-1].split("\\.")[0]);
-		return directory.toString();
-	}
-
 }

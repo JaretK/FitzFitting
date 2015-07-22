@@ -10,6 +10,7 @@ import javafx.concurrent.Task;
 
 /**
  * Saves the header and ArrayList<String[]> parameters to a new file 
+ * File is located INSIDE folder, saved as CalculatedParameters.csv
  * 
  * @author jkarnuta
  *
@@ -18,18 +19,13 @@ public class FFModelSave extends Task<FFError>{
 
 	private final List<String[]> headers;
 	private final List<String[]> runs;
-	private final String initialFilePath;
-	private String savedFilePath;
+	private final String directoryPath;
+	private static final String APPEND_FILE_NAME = "CalculatedParameters.csv";
 
-	public FFModelSave(List<String[]> headers, List<String[]> runs, String initialFilePath){
+	public FFModelSave(List<String[]> headers, List<String[]> runs, String directoryPath){
 		this.headers = headers;
 		this.runs = runs;
-		this.initialFilePath = initialFilePath;
-		this.savedFilePath = "unknown";
-	}
-
-	public String getSavedFilePath(){
-		return this.savedFilePath;
+		this.directoryPath = directoryPath;
 	}
 
 	@Override 
@@ -38,8 +34,7 @@ public class FFModelSave extends Task<FFError>{
 	}
 
 	public FFError save(){
-		this.savedFilePath = generateFilePath();
-		File newFile = new File(this.savedFilePath);
+		File newFile = new File(this.directoryPath + APPEND_FILE_NAME);
 		long totalIterations = this.runs.size()-1; //ignoring header
 		long currentIteration = 0;
 
@@ -72,45 +67,7 @@ public class FFModelSave extends Task<FFError>{
 		return FFError.NoError;
 	}
 
-	/**
-	 * Formats the new file name from FILENAME.csv to FILENAME_FITTED_dd-mmm-yyyy.csv
-	 * @return formatted file name
-	 */
-	private String generateFilePath(){
-		String[] pathArray = this.initialFilePath.split(File.separator);
-		String filename = pathArray[pathArray.length-1];
-		String[] splittedFileName = filename.split("\\.");
-		pathArray[pathArray.length-1] = splittedFileName[0]+"_FITTED_"+getDate()+"."+splittedFileName[1];
-		return join(pathArray, File.separator);
-	}
 
-	/**
-	 * retreives the current date in dd-mmm-yyyy format
-	 * @return
-	 */
-	private String getDate(){
-		Calendar cal = Calendar.getInstance();
-		SimpleDateFormat format = new SimpleDateFormat("dd-MMM-YYYY");
-		return format.format(cal.getTime());
-	}
-
-
-	/**
-	 * mimics sep.join(array) from python
-	 * @param arr - array to put between seps
-	 * @param sep - separation character
-	 * @return joined array
-	 */
-	private String join(String[] arr, String sep){
-		StringBuilder sb = new StringBuilder();
-		for (String ele : arr){
-			if(ele.equals("")){
-				continue;
-			}
-			sb.append(sep+ele);
-		}
-		return sb.toString();
-	}
 
 	/**
 	 * Converts a string array into a CSV readable string

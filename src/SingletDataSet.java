@@ -177,7 +177,9 @@ public class SingletDataSet extends AbstractDataSet {
 		
 		/*Calculated Values*/
 		public double chalf;
+		public double chalfSD;
 		public double b;
+		public double bSD;
 		public double adjRSq;
 			
 		
@@ -201,7 +203,7 @@ public class SingletDataSet extends AbstractDataSet {
 
 		public Chartable toChartable() {
 			return new Chartable(this.peptide, this.protein, this.intensities,
-					this.denaturants,this.chalf, this.b, this.adjRSq, this.indexRemoved);
+					this.denaturants,this.chalf,this.chalfSD ,this.b, this.bSD ,this.adjRSq, this.indexRemoved);
 		}
 		
 		public void parseCalculatedValues(SingleFit sf){
@@ -210,7 +212,9 @@ public class SingletDataSet extends AbstractDataSet {
 			 */
 			double[] arr = sf.array;
 			this.chalf = arr[0];
+			this.chalfSD = arr[1];
 			this.b = arr[2];
+			this.bSD = arr[3];
 			this.adjRSq = arr[4];
 			this.indexRemoved = sf.removedValue;
 			

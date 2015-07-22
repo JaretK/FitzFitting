@@ -1,3 +1,5 @@
 build/
 hs_err_pid*
 *.fxbuild
+TempClass.java
+TempClass.class
