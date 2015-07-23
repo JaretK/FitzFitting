@@ -1,0 +1,10 @@
+<h2 id = "calculated-hits">Calculated Hits</h2>
+<table class="sprox-table">
+  <tr>
+    <th>CSV Row Number</th>
+    <th>Peptide</th>
+    <th>Protein</th>
+    <th>Graph</th>
+  </tr>
+  $INSERT_ROW_HERE$
+</table>

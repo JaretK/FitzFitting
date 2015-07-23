@@ -3,7 +3,6 @@ import javafx.scene.text.TextFlow;
 
 public class DoubletDataSet extends AbstractDataSet {
 	
-	private final File 
 
 	public DoubletDataSet(String SPROXFile, String DenaturantFile,
 			TextFlow output) {
@@ -19,6 +18,12 @@ public class DoubletDataSet extends AbstractDataSet {
 
 	@Override
 	public FFError digest() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	protected Void call() throws Exception {
 		// TODO Auto-generated method stub
 		return null;
 	}

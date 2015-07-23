@@ -29,6 +29,11 @@ public class FFModelSinglet extends AbstractFFModel{
 
 		super(filePath, denaturantPath, tf, generateGraphs, midpoint);
 	}
+	/**
+	 * Only used for Debugging purposes
+	 */
+	public FFModelSinglet(){
+	}
 
 	/**
 	 * Writes DataSet.getRuns() to a new file
@@ -163,6 +168,20 @@ public class FFModelSinglet extends AbstractFFModel{
 
 		Text[] texts = new Text[]{message, graphsMessage, new Text("\n")};
 		TextFlowWriter.addArray(texts, this.output);
+	}
+
+	@Override
+	public void generateHTML() {
+		// TODO Auto-generated method stub
+		HTMLGenerator hg = new HTMLGenerator(this, null);
+		TextFlowWriter.writeInfo("Generating HTML Summary...", super.output);
+		try{
+			hg.call();
+			TextFlowWriter.writeSuccess("Successfully generated HTML Summary", this.output);
+		}catch(Exception e){
+			e.printStackTrace();
+			TextFlowWriter.writeError(e.getMessage(), super.output);
+		}
 	}
 
 }

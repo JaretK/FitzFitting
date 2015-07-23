@@ -1,6 +1,7 @@
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 
 import javafx.application.Platform;
@@ -56,9 +57,18 @@ public abstract class AbstractFFModel {
 		this.SPROXFile = getFile(this.SPROX1);
 		this.denaturantFile = getFile(this.denaturantPath);
 		this.midpointTolerance = midpoint;
-
-
-
+	}
+	/**
+	 * Only used for Debugging purposes
+	 */
+	public AbstractFFModel(){
+		this.SPROX1 = null;
+		this.denaturantPath = null;
+		this.generateGraphs = false;
+		this.output = null;
+		this.SPROXFile = null;
+		this.denaturantFile = null;
+		this.midpointTolerance = 0.0d;
 	}
 
 	/**
@@ -70,6 +80,8 @@ public abstract class AbstractFFModel {
 	public abstract void save();
 
 	public abstract void generateGraphs();
+	
+	public abstract void generateHTML();
 
 
 	/**

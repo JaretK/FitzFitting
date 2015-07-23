@@ -151,8 +151,12 @@ public class DualSingletDataSet extends AbstractDataSet {
 			pc.calculatedValues2 = r2.call();
 
 			super.runs1.set(i, pc.toStringArray());
-			super.addChartable1(pc.toChartable1());
-			super.addChartable2(pc.toChartable2());
+			Chartable c1 = pc.toChartable1();
+			c1.graphNumber = super.headers1.size()+1+i;
+			super.addChartable1(c1);
+			Chartable c2 = pc.toChartable2();
+			c2.graphNumber = super.headers1.size() + 1 + i;
+			super.addChartable2(c2);
 			updateProgress(i, totalIterations);
 		}
 		TextFlowWriter.removeLast(super.output);
@@ -212,7 +216,6 @@ public class DualSingletDataSet extends AbstractDataSet {
 			for (int i = 0; i < list.length - trailingOffset; i++){
 				theRest[i] = list[trailingOffset+i];
 			}
-
 		}
 
 		public String[] toStringArray(){
@@ -259,7 +262,8 @@ public class DualSingletDataSet extends AbstractDataSet {
 			final double bSD = calculatedArray1[3];
 			final double adjrsq = calculatedArray1[4];
 			return new Chartable(this.peptide, this.accessionNumber, 
-					this.intensities1, this.denaturants, chalf, chalfSD ,b, bSD ,adjrsq, this.calculatedValues1.removedValue);
+					this.intensities1, this.denaturants, chalf, chalfSD ,b, bSD ,adjrsq, this.calculatedValues1.removedValue,
+					this.calculatedValues1.A, this.calculatedValues1.B);
 		}
 		
 		public Chartable toChartable2(){
@@ -270,7 +274,8 @@ public class DualSingletDataSet extends AbstractDataSet {
 			final double bSD = calculatedArray2[3];
 			final double adjrsq = calculatedArray2[4];
 			return new Chartable(this.peptide, this.accessionNumber, 
-					this.intensities2, this.denaturants, chalf, chalfSD ,b, bSD ,adjrsq, this.calculatedValues2.removedValue);
+					this.intensities2, this.denaturants, chalf, chalfSD ,b, bSD ,adjrsq, this.calculatedValues2.removedValue,
+					this.calculatedValues2.A,this.calculatedValues2.B);
 		}
 	}
 	public static void main(String[] args){

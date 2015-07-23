@@ -54,6 +54,7 @@ public class FFMain extends Application {
 					if(model.getGenerateGraphsStatus()){
 						model.generateGraphs();
 					}
+					model.generateHTML();
 				}
 				else // on calculation error
 				{

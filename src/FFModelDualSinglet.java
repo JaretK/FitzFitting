@@ -9,6 +9,9 @@ import javafx.scene.text.TextFlow;
 
 public class FFModelDualSinglet extends AbstractFFModel{
 
+
+	ComparisonSummary compSummary;
+
 	public FFModelDualSinglet(String filePath, String denaturantPath,
 			TextFlow tf, boolean generateGraphs, double midpoint) {
 		super(filePath, denaturantPath, tf, generateGraphs, midpoint);
@@ -44,14 +47,14 @@ public class FFModelDualSinglet extends AbstractFFModel{
 
 	@Override
 	public void save() {	
-		
+
 		/**
 		 * Make folder for Graphs / Histograms / Analysis / Summary file(s)
 		 */
 		/*Generate the super directory path, which contains all the saved files*/
 		super.superPath = generateDirectoryPath(super.SPROX1) + File.separator;
 		new File(superPath).mkdirs(); //make directory
-		
+
 		/**
 		 * Save main CalculatedParameters.csv
 		 */
@@ -71,23 +74,23 @@ public class FFModelDualSinglet extends AbstractFFModel{
 		else{
 			writeError("Error saving file: "+saveStatus);
 		}
-		
+
 		/**
 		 * As this is a Dual experiment file, a comparison is generated from the chartables stored in data
 		 */
-		
+
 		TextFlowWriter.writeInfo("Calculating Analysis File", this.output);
-		
+
 		FFChartableComparator ffcc = new FFChartableComparator(super.data.chartables1, super.data.chartables2,
 				super.data.headers1, super.superPath, super.output);
-		
+
 		Platform.runLater(()->{
 			super.progress.unbind();
 			super.progress.bind(ffcc.progressProperty());
 		});
-		
-		ComparisonSummary compSummary = ffcc.call();
-		
+
+		compSummary = ffcc.call();
+
 		if(compSummary != null){
 			TextFlowWriter.writeSuccess("Successfully compared runs", this.output);
 		}
@@ -95,7 +98,7 @@ public class FFModelDualSinglet extends AbstractFFModel{
 			TextFlowWriter.writeError("Error comparing runs", this.output);
 		}
 
-		
+
 	}
 
 	@Override
@@ -188,7 +191,19 @@ public class FFModelDualSinglet extends AbstractFFModel{
 			TextFlowWriter.removeLast(this.output);
 			TextFlowWriter.writeError("Error drawing histograms", this.output);
 		}
+	}
 
-
+	@Override
+	public void generateHTML() {
+		// TODO Auto-generated method stub
+		HTMLGenerator hg = new HTMLGenerator(this, compSummary);
+		TextFlowWriter.writeInfo("Generating HTML Summary...", super.output);
+		try{
+			hg.call();
+			TextFlowWriter.writeSuccess("Successfully generated HTML Summary", this.output);
+		}catch(Exception e){
+			e.printStackTrace();
+			TextFlowWriter.writeError(e.getMessage(), super.output);
+		}
 	}
 }

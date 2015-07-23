@@ -8,4 +8,8 @@ public class FFConstants {
 	/*For FFChartableComparator*/
 	public static final double ADJ_R_SQ_HEURISTIC = 0.7d;
 	public static final double MIDPOINT_HEURISTIC = 0.5d;
+	
+	/*For FFChartableComparator and HTMLGenerator*/
+	public static final String COMPARISON_FILENAME = "Comparison.csv";
 }
+

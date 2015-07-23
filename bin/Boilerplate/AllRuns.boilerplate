@@ -1,0 +1,17 @@
+<h2 id = "all-runs"> All Runs </h2>
+<table class = "sprox-table">
+  <tr>
+    <th colspan="3">Identifiers</th>
+    <th colspan = "2">Control</th>
+    $LIGAND_SUP_HEADER$
+    <th></th>
+  </tr>
+  <tr>
+    <th>CSV Row Number</th>
+    <th>Peptide</th>
+    <th>Protein</th>
+    $CONTROL_LIGAND_SUB_HEADER$
+    <th>Graph</th>
+  </tr>
+  $INSERT_ROW_HERE$
+</table>

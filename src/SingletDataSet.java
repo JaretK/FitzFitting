@@ -152,7 +152,9 @@ public class SingletDataSet extends AbstractDataSet {
 					}
 					newRun[newRun.length-1] = "";
 					runs1.set(i, newRun);
-					super.addChartable1(pc.toChartable());
+					Chartable c = pc.toChartable();
+					c.graphNumber = 1 + super.headers1.size() + i;
+					super.addChartable1(c);
 				}
 			}
 			catch(ArrayIndexOutOfBoundsException e){
@@ -181,6 +183,7 @@ public class SingletDataSet extends AbstractDataSet {
 		public double b;
 		public double bSD;
 		public double adjRSq;
+		public double A,B;
 			
 		
 		public SingletPeptideContainer(String[] list, Double[] denaturants
@@ -203,7 +206,7 @@ public class SingletDataSet extends AbstractDataSet {
 
 		public Chartable toChartable() {
 			return new Chartable(this.peptide, this.protein, this.intensities,
-					this.denaturants,this.chalf,this.chalfSD ,this.b, this.bSD ,this.adjRSq, this.indexRemoved);
+					this.denaturants,this.chalf,this.chalfSD ,this.b, this.bSD ,this.adjRSq, this.indexRemoved, this.A, this.B);
 		}
 		
 		public void parseCalculatedValues(SingleFit sf){
@@ -217,6 +220,8 @@ public class SingletDataSet extends AbstractDataSet {
 			this.bSD = arr[3];
 			this.adjRSq = arr[4];
 			this.indexRemoved = sf.removedValue;
+			this.A=sf.A;
+			this.B = sf.B;
 			
 		}
 	}

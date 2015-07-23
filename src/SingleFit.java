@@ -1,10 +1,14 @@
 
 public class SingleFit implements Comparable<SingleFit>{
 	public final double[] array;
+	public final double A;
+	public final double B;
 	public final int removedValue;
-	public SingleFit(double[] arr, int removedValue){
+	public SingleFit(double[] arr, int removedValue, double A, double B){
 		this.array = arr;
 		this.removedValue = removedValue;
+		this.A=A;
+		this.B=B;
 	}
 	
 	@Override

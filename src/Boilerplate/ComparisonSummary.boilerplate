@@ -1,0 +1,26 @@
+<h2>Comparison Summary</h2>
+<table class="sprox-table">
+	<tr>
+		<td colspan = "2"><span class = "$COMPARISON_SUCCESS_STYLE$">$COMPARISON_SUCCESS$</span></td>
+	</tr>
+	<tr class = "alt">
+		<td>Number Peptides Compared</td>
+		<td>$NUMBER_PEPTIDES_COMPARED$</td>
+	</tr>
+	<tr>
+		<td>All Peptides Compared?</td>
+		<td class = "$ALL_PEPTIDES_COMPARED_STYLE$">$ALL_PEPTIDES_COMPARED$</td>
+	</tr>
+	<tr class  = "alt">
+		<td>Number Clean (Adjusted R<sup>2</sup> >$ADJUSTED_R_SQ_HUERISTIC$)</td>
+		<td>$NUMBER_CLEAN$</td>
+	</tr>
+	<tr>
+		<td>Number Significant (C<sub>1/2</sub> > $MIDPOINT_HEURISTIC$)</td>
+		<td>$NUMBER_SIGNIFICANT$</td>
+	</tr>
+	<tr class  = "alt">
+		<td>Number Hits</td>
+		<td>$NUMBER_HITS$</td>
+	</tr>
+</table>

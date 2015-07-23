@@ -21,7 +21,7 @@ class Chartable{
 	
 	public Chartable(
 			String peptide, String protein, double[] intensities,
-			double[] denaturants, double chalf, double chalfSD ,double b, double bSD ,double adjRSquared, int indexRemoved
+			double[] denaturants, double chalf, double chalfSD ,double b, double bSD ,double adjRSquared, int indexRemoved, double A, double B
 			){
 		this.peptide = peptide;
 		this.protein = protein;
@@ -44,29 +44,12 @@ class Chartable{
 		
 		this.indexRemoved = indexRemoved;
 		
-		assignAAndB();
+		this. A = A;
+		this. B = B;
 	}
 	
 	public void setGraphNumber(int graphNumber){
 		this.graphNumber = graphNumber;
-	}
-
-	private final void assignAAndB(){
-		//A is calculated from DataRun
-		//B is calculated from DataRun
-		/*
-		 * determine if curve is oxidized or not based on heuristics
-		 * assume to be non-oxidized if first two points average to be greater than 1.0
-		 */
-		boolean nonOx =  (intensities[0] + intensities[1])/2 > 1.0;
-		if (nonOx){
-			A = FFMath.max(intensities);
-			B = FFMath.min(intensities);
-		}
-		else{
-			A = FFMath.min(intensities);
-			B = FFMath.max(intensities);
-		}
 	}
 
 	public String toString(){

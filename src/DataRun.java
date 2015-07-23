@@ -34,21 +34,9 @@ public class DataRun extends Task<SingleFit>{
 		}
 
 		
-		double A;
-		double B;
-		/*
-		 * determine if curve is oxidized or not based on heuristics
-		 * assume to be non-oxidized if first two points average to be greater than 1.0
-		 */
-		boolean nonOx =  (y[0] + y[1])/2 > 1.0;
-		if (nonOx){
-			A = FFMath.max(y);
-			B = FFMath.min(y);
-		}
-		else{
-			A = FFMath.min(y);
-			B = FFMath.max(y);
-		}
+		double[] AAndB = calculateAAndB(intensities);
+		double A = AAndB[0];
+		double B = AAndB[1];
 		
 		// Instantiate CHalfFunction and assign A and B (knowns)
 		CHalfFunction f = new CHalfFunction();
@@ -112,12 +100,14 @@ public class DataRun extends Task<SingleFit>{
 		//add without removing intensities
 		Double[] x = new Double[fDenaturants.length];
 		Double[] y = new Double[fIntensities.length];
+		
 		for (int i = 0; i < x.length; i++){
 			x[i] = fDenaturants[i];
 			y[i] = fIntensities[i];
 		}
+		double[] AAndB = calculateAAndB(y);
 		fitList.add(new SingleFit(
-				this.calculateFit(y, x),-1));
+				this.calculateFit(y, x),-1,AAndB[0], AAndB[1]));
 		
 		//serially remove each value and recalculate fit
 		//"remove" a value by weighting it 0
@@ -136,7 +126,9 @@ public class DataRun extends Task<SingleFit>{
 			newDenaturants = tempListDenaturants.toArray(newDenaturants);
 			
 			//calculate fit
-			SingleFit fit = new SingleFit(this.calculateFit(newIntensities, newDenaturants), i);
+			AAndB = calculateAAndB(newIntensities);
+			
+			SingleFit fit = new SingleFit(this.calculateFit(newIntensities, newDenaturants), i, AAndB[0], AAndB[1]);
 			fitList.add(fit);
 			//remove 0 weight
 			weights[i] = 1.0d;
@@ -145,8 +137,29 @@ public class DataRun extends Task<SingleFit>{
 		return fitList.get(0); //return largest adjRsq
 	}
 	
+	private double[] calculateAAndB(Double[] intensities2){
+		double[] ret = new double[2];
+		/*
+		 * determine if curve is oxidized or not based on heuristics
+		 * assume to be non-oxidized if first two points average to be greater than 1.0
+		 */
+		double A,B;
+		boolean nonOx =  (intensities2[0] + intensities2[1])/2 > 1.0;
+		if (nonOx){
+			A = FFMath.max(intensities2);
+			B = FFMath.min(intensities2);
+		}
+		else{
+			A = FFMath.min(intensities2);
+			B = FFMath.max(intensities2);
+		}
+		ret[0] = A;
+		ret[1] = B;
+		return ret;
+	}
+	
 	public static void main(String[] args){
-		String[] t = "0.651149	2.59083	2.41268	0.796341	0.727674	0.442231	0.384335	0.297607".split("\\s+");
+		String[] t = "2.62223	1.24223	1.03308	0.96041	0.81282	0.721857	0.516559	0.455449".split("\\s+");
 		double [] d = new double[t.length];
 		for (int i = 0; i < t.length; i++)d[i] = Double.parseDouble(t[i]);
 		DataRun r = new DataRun(d, 
