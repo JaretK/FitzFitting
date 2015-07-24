@@ -55,6 +55,8 @@ public class FFMain extends Application {
 						model.generateGraphs();
 					}
 					model.generateHTML();
+					model.generateHistograms();
+					
 				}
 				else // on calculation error
 				{

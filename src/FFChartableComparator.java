@@ -104,6 +104,7 @@ public class FFChartableComparator extends Task<ComparisonSummary>{
 		 */
 
 		List<HitContainer> hits = new ArrayList<HitContainer>();
+		List<Double> allDeltaMidpoints = new ArrayList<Double>();
 
 		for(int i = 0; i < charts1.size(); i++){
 			currentLineNumber++;
@@ -187,6 +188,7 @@ public class FFChartableComparator extends Task<ComparisonSummary>{
 			line.append(",");
 			line.append("\n");
 
+			allDeltaMidpoints.add(dMidpoint);
 			//if a hit is found, make a new HitContainer to pass the data to HTMLGenerator
 			if(hit){
 				hits.add(new HitContainer(currentLineNumber,
@@ -211,7 +213,8 @@ public class FFChartableComparator extends Task<ComparisonSummary>{
 		fw.close();
 
 		ComparisonSummary compSummary = new ComparisonSummary(
-				numberCompared, allCompared, numberClean, numberSignificant, numberHits, hits);
+				numberCompared, allCompared, numberClean, 
+				numberSignificant, numberHits, hits, allDeltaMidpoints);
 		return compSummary;
 	}
 }

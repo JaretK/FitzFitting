@@ -1,7 +1,6 @@
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Calendar;
 
 import javafx.application.Platform;
@@ -20,9 +19,6 @@ public abstract class AbstractFFModel {
 	//FilePath to the denaturant csv
 	protected final String denaturantPath;
 	protected final File denaturantFile;
-
-	//significant midpoint difference shifts
-	protected final double midpointTolerance;
 
 	//Should graphs be generated? (A time consuming processs)
 	protected final boolean generateGraphs;
@@ -46,9 +42,12 @@ public abstract class AbstractFFModel {
 	//Filepath for folder which saves all generated files
 	protected String superPath = "";
 
+	//used for comparisons and hits
+	ComparisonSummary compSummary = null;
+	
 	//AbstractFFModel constructor
 	public AbstractFFModel(String filePath, String denaturantPath ,TextFlow tf ,
-			boolean generateGraphs, double midpoint){
+			boolean generateGraphs){
 		this.SPROX1 = filePath;
 		this.denaturantPath = denaturantPath;
 		this.generateGraphs = generateGraphs;
@@ -56,7 +55,6 @@ public abstract class AbstractFFModel {
 
 		this.SPROXFile = getFile(this.SPROX1);
 		this.denaturantFile = getFile(this.denaturantPath);
-		this.midpointTolerance = midpoint;
 	}
 	/**
 	 * Only used for Debugging purposes
@@ -68,7 +66,6 @@ public abstract class AbstractFFModel {
 		this.output = null;
 		this.SPROXFile = null;
 		this.denaturantFile = null;
-		this.midpointTolerance = 0.0d;
 	}
 
 	/**
@@ -82,6 +79,8 @@ public abstract class AbstractFFModel {
 	public abstract void generateGraphs();
 	
 	public abstract void generateHTML();
+	
+	public abstract void generateHistograms();
 
 
 	/**

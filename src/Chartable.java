@@ -7,6 +7,9 @@
 class Chartable{
 	public String peptide;
 	public String protein;
+	public String experiment;
+	public double intsum;
+	public double RT;
 	public int graphNumber;
 	public double[] intensities;
 	public double A;
@@ -20,11 +23,14 @@ class Chartable{
 	
 	
 	public Chartable(
-			String peptide, String protein, double[] intensities,
-			double[] denaturants, double chalf, double chalfSD ,double b, double bSD ,double adjRSquared, int indexRemoved, double A, double B
-			){
+			String peptide, String protein,String experiment, double intsum, double RT, double[] intensities,
+			double[] denaturants, double chalf, double chalfSD ,double b, double bSD ,
+			double adjRSquared, int indexRemoved, double A, double B){
 		this.peptide = peptide;
 		this.protein = protein;
+		this.experiment = experiment;
+		this.intsum = intsum;
+		this.RT = RT;
 
 		//populate intensities
 		this.intensities = intensities;

@@ -13,16 +13,31 @@
           <Menu mnemonicParsing="false" text="File">
             <items>
               <MenuItem fx:id="Reset" mnemonicParsing="false" onAction="#ResetOnAction" text="Reset" />
+                  <SeparatorMenuItem mnemonicParsing="false" />
                   <MenuItem fx:id="Exit" mnemonicParsing="false" onAction="#ExitOnAction" text="Exit" />
             </items>
           </Menu>
+            <Menu fx:id="HitCriteria" mnemonicParsing="false" text="Hit Criteria">
+               <items>
+                  <MenuItem fx:id="MidPointCriteria" mnemonicParsing="false" text="Midpoint">
+                     <graphic>
+                        <TextField fx:id="MidPointValue" text="0.5" />
+                     </graphic>
+                  </MenuItem>
+                  <MenuItem fx:id="AdjustedRSquaredCriteria" mnemonicParsing="false" text="Adjusted R Squared">
+                     <graphic>
+                        <TextField fx:id="AdjustedRSquaredValue" text="0.7" />
+                     </graphic>
+                  </MenuItem>
+               </items>
+            </Menu>
         </menus>
       </MenuBar>
       <Group id="SPROXGroup" fx:id="SPROXGroup" layoutX="-6.0">
          <children>
             <Button fx:id="SPROXBrowse" layoutX="517.0" layoutY="38.0" mnemonicParsing="false" onAction="#SPROXButtonOnAction" prefHeight="26.0" prefWidth="80.0" text="Browse" />
             <Label fx:id="SPROXLabel" layoutX="37.0" layoutY="43.0" prefHeight="16.0" prefWidth="74.0" text="SPROX csv" />
-            <TextField fx:id="SPROXField" layoutX="111.0" layoutY="39.0" onDragEntered="#SPROXOnDragEntered" onDragExited="#SPROXOnDragExited" prefHeight="26.0" prefWidth="395.0" styleClass="textfield" stylesheets="@FFSkins.css" />
+            <TextField fx:id="SPROXField" layoutX="111.0" layoutY="39.0" onDragEntered="#SPROXOnDragEntered" onDragExited="#SPROXOnDragExited" prefHeight="26.0" prefWidth="395.0" promptText="Drag or browse your SPROX File" styleClass="textfield" stylesheets="@FFSkins.css" />
          </children>
       </Group>
       <Group id="SPROXGroup" fx:id="SPROX2Group" disable="true" layoutX="-6.0" layoutY="33.0">
@@ -34,7 +49,7 @@
       </Group>
       <Group id="DenaturantGroup" layoutX="-5.0" layoutY="41.0" stylesheets="@FFSkins.css">
          <children>
-            <TextField fx:id="DenaturantField" layoutX="111.0" layoutY="64.0" onDragEntered="#DenaturantOnDragEntered" onDragExited="#DenaturantOnDragExited" prefHeight="26.0" prefWidth="395.0" styleClass="textfield" />
+            <TextField fx:id="DenaturantField" layoutX="111.0" layoutY="64.0" onDragEntered="#DenaturantOnDragEntered" onDragExited="#DenaturantOnDragExited" prefHeight="26.0" prefWidth="395.0" promptText="Drag or browse your Denaturant File" styleClass="textfield" />
             <Label layoutX="14.0" layoutY="69.0" prefHeight="16.0" prefWidth="97.0" text="Denaturant File" />
             <Button fx:id="DenaturantBrowse" layoutX="517.0" layoutY="64.0" mnemonicParsing="false" onAction="#DenaturantButtonOnAction" prefHeight="26.0" prefWidth="80.0" text="Browse" />
          </children>
@@ -45,7 +60,6 @@
          </content>
       </ScrollPane>
       <ProgressBar id="progressBar" fx:id="progressBar" layoutY="424.0" prefHeight="20.0" prefWidth="600.0" progress="0.0" />
-      <CheckBox id="Urea" fx:id="Urea" layoutX="14.0" layoutY="142.0" mnemonicParsing="false" prefHeight="18.0" prefWidth="87.0" text="Urea" />
       <CheckBox id="GenerateGraphs" fx:id="Graphs" layoutX="334.0" layoutY="142.0" mnemonicParsing="false" text="Generate Graphs" />
       <CheckBox id="Compare" fx:id="CompareInputs" layoutX="78.0" layoutY="142.0" mnemonicParsing="false" text="Compare" />
       <Button id="button-default" fx:id="AnalyzeButton" defaultButton="true" layoutX="471.0" layoutY="139.0" mnemonicParsing="false" onAction="#AnalyzeOnAction" prefHeight="13.0" prefWidth="120.0" styleClass="Button-Default" text="Analyze" />

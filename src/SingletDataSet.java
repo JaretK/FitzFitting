@@ -205,7 +205,7 @@ public class SingletDataSet extends AbstractDataSet {
 		}
 
 		public Chartable toChartable() {
-			return new Chartable(this.peptide, this.protein, this.intensities,
+			return new Chartable(this.peptide, this.protein, "-", this.intsum, this.rt,this.intensities,
 					this.denaturants,this.chalf,this.chalfSD ,this.b, this.bSD ,this.adjRSq, this.indexRemoved, this.A, this.B);
 		}
 		

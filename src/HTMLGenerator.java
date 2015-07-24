@@ -169,9 +169,6 @@ public class HTMLGenerator extends Task<Void>{
 			currentRowNumber++;
 		}
 		findAndReplace(INSERT_ROW_HERE, "");
-
-		System.out.println(html.toString());
-
 		save();
 		return null;
 	}

@@ -36,10 +36,10 @@ public class FFController extends FFMain implements Initializable{
 	private Button SPROXBrowse, SPROX2Browse, DenaturantBrowse, AnalyzeButton;
 
 	@FXML
-	private TextField SPROXField, SPROX2Field ,DenaturantField;
+	private TextField SPROXField, SPROX2Field ,DenaturantField, MidPointValue, AdjustedRSquaredValue;
 
 	@FXML
-	private CheckBox Urea, Graphs, CompareInputs, Dual;
+	private CheckBox Graphs, CompareInputs, Dual;
 
 	@FXML
 	private Group SPROXGroup, SPROX2Group;
@@ -64,7 +64,6 @@ public class FFController extends FFMain implements Initializable{
 		/*
 		 * Do not allow indeterminate states for CheckBoxes
 		 */
-		Urea.setAllowIndeterminate(false);
 		Graphs.setAllowIndeterminate(false);
 
 		/**
@@ -286,11 +285,16 @@ public class FFController extends FFMain implements Initializable{
 		/*
 		 * Build constants for constructors
 		 */
-		double midpointdiff = Urea.isSelected() ? 1.0 : 0.5;
 		boolean genGraphs = Graphs.isSelected();
 		String SPROX1 = SPROXField.getText();
 		String SPROX2 = SPROX2Field.getText();
 		String denaturants = DenaturantField.getText();
+		
+		/*
+		 * Set values for heuristics 
+		 */
+		FFConstants.setAdjustedRSquaredHeuristic(AdjustedRSquaredValue.getText());
+		FFConstants.setMidPointHeuristic(MidPointValue.getText());
 
 		AbstractFFModel model;
 		AbstractDataSet dataset;
@@ -298,20 +302,20 @@ public class FFController extends FFMain implements Initializable{
 		if (CompareInputs.isSelected()){
 			System.err.println("Not Implemented");
 			TextFlowWriter.writeError("FFModelDoublet is not yet implemented", FFInfo);
-			model = new FFModelDoublet(SPROX1, SPROX2,denaturants, FFInfo, genGraphs, midpointdiff);
+			model = new FFModelDoublet(SPROX1, SPROX2,denaturants, FFInfo, genGraphs);
 			dataset = new DoubletDataSet(SPROX1, denaturants, FFInfo);
 			dataset.addDoubletNature(SPROX2);
 		}
 		
 		//Compare two experiments in one file of type Doublet
 		else if (Dual.isSelected()){
-			model = new FFModelDualSinglet(SPROX1, denaturants, FFInfo, genGraphs, midpointdiff);
+			model = new FFModelDualSinglet(SPROX1, denaturants, FFInfo, genGraphs);
 			dataset = new DualSingletDataSet(SPROX1, denaturants, FFInfo);
 		}
 		
 		//Default option
 		else{
-			model = new FFModelSinglet(SPROX1, denaturants, FFInfo, genGraphs, midpointdiff);
+			model = new FFModelSinglet(SPROX1, denaturants, FFInfo, genGraphs);
 			dataset = new SingletDataSet(SPROX1, denaturants, FFInfo);
 		}
 		/*

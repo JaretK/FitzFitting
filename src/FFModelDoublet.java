@@ -16,8 +16,8 @@ public class FFModelDoublet extends AbstractFFModel{
 	private final String SPROX2;
 
 	public FFModelDoublet(String SPROX1,String SPROX2 ,String denaturantPath, TextFlow tf,
-			boolean generateGraphs, double midpoint) {
-		super(SPROX1, denaturantPath, tf, generateGraphs, midpoint);
+			boolean generateGraphs) {
+		super(SPROX1, denaturantPath, tf, generateGraphs);
 		this.SPROX2 = SPROX2;
 	}
 
@@ -41,6 +41,18 @@ public class FFModelDoublet extends AbstractFFModel{
 
 	@Override
 	public void generateGraphs() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void generateHTML() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void generateHistograms() {
 		// TODO Auto-generated method stub
 		
 	}

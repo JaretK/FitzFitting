@@ -2,6 +2,7 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import javafx.scene.text.TextFlow;
@@ -169,7 +170,7 @@ public class DualSingletDataSet extends AbstractDataSet {
 
 		public String peptide;
 		public String accessionNumber;
-		public int experiment;
+		public String experiment;
 		public double[] denaturants;
 		
 		/*Run 1*/
@@ -194,8 +195,9 @@ public class DualSingletDataSet extends AbstractDataSet {
 			this.intensities2 = new double[numberDenaturants];
 
 			this.peptide = list[0];
-			this.accessionNumber = list[1];
-			this.experiment = Integer.parseInt(list[2]);
+			this.accessionNumber = list[1].trim();
+			this.experiment = list[2];
+			System.out.println(Arrays.toString(list));
 
 			this.isolationInterference1 = Double.parseDouble(list[3]);
 			this.rt1 = Double.parseDouble(list[4]);
@@ -223,7 +225,7 @@ public class DualSingletDataSet extends AbstractDataSet {
 			List<String> list = new ArrayList<String>(){{
 				add(peptide);
 				add(accessionNumber);
-				add(String.valueOf(experiment));
+				add(experiment);
 				add(String.valueOf(isolationInterference1));
 				add(String.valueOf(rt1));
 				for (double ele : intensities1){
@@ -261,9 +263,9 @@ public class DualSingletDataSet extends AbstractDataSet {
 			final double b = calculatedArray1[2];
 			final double bSD = calculatedArray1[3];
 			final double adjrsq = calculatedArray1[4];
-			return new Chartable(this.peptide, this.accessionNumber, 
-					this.intensities1, this.denaturants, chalf, chalfSD ,b, bSD ,adjrsq, this.calculatedValues1.removedValue,
-					this.calculatedValues1.A, this.calculatedValues1.B);
+			return new Chartable(this.peptide, this.accessionNumber, this.experiment, this.isolationInterference1,
+					this.rt1,this.intensities1, this.denaturants, chalf, chalfSD ,b, bSD ,adjrsq, 
+					this.calculatedValues1.removedValue,this.calculatedValues1.A, this.calculatedValues1.B);
 		}
 		
 		public Chartable toChartable2(){
@@ -273,9 +275,9 @@ public class DualSingletDataSet extends AbstractDataSet {
 			final double b = calculatedArray2[2];
 			final double bSD = calculatedArray2[3];
 			final double adjrsq = calculatedArray2[4];
-			return new Chartable(this.peptide, this.accessionNumber, 
-					this.intensities2, this.denaturants, chalf, chalfSD ,b, bSD ,adjrsq, this.calculatedValues2.removedValue,
-					this.calculatedValues2.A,this.calculatedValues2.B);
+			return new Chartable(this.peptide, this.accessionNumber, this.experiment, this.isolationInterference2,
+					this.rt2, this.intensities2, this.denaturants, chalf, chalfSD ,b, bSD ,adjrsq, 
+					this.calculatedValues2.removedValue,this.calculatedValues2.A,this.calculatedValues2.B);
 		}
 	}
 	public static void main(String[] args){

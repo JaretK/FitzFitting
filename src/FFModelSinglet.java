@@ -25,9 +25,9 @@ import javafx.scene.text.TextFlow;
 public class FFModelSinglet extends AbstractFFModel{
 
 	public FFModelSinglet(String filePath, String denaturantPath ,TextFlow tf ,
-			boolean generateGraphs, double midpoint){
+			boolean generateGraphs){
 
-		super(filePath, denaturantPath, tf, generateGraphs, midpoint);
+		super(filePath, denaturantPath, tf, generateGraphs);
 	}
 	/**
 	 * Only used for Debugging purposes
@@ -109,37 +109,6 @@ public class FFModelSinglet extends AbstractFFModel{
 			String pluralRuns = numMissing == 1 ? "run" : "runs";
 			TextFlowWriter.writeError(numMissing+" "+pluralRuns+" unaccounted for", this.output);
 		}
-		
-		
-		/**
-		 * Generate Histograms
-		 */
-		TextFlowWriter.writeInfo("Generating Histograms...", this.output);
-		
-		/*Generate C 1/2 Histogram*/
-		List<Double> cHalfValues = new ArrayList<Double>();
-		List<Double> bValues = new ArrayList<Double>();
-		for (Chartable chartable: super.data.chartables1){
-			cHalfValues.add(chartable.chalf);
-			bValues.add(chartable.b);
-		}
-		TextFlowWriter.writeInfo("Calculating C 1/2", this.output);
-		FFHistogramGenerator chalfGenerator = new FFHistogramGenerator(cHalfValues, "Midpoint Histogram",superPath);
-		FFError chalfHistogramError = chalfGenerator.call();
-		
-		TextFlowWriter.removeLast(this.output);
-		TextFlowWriter.writeInfo("Calculating b", this.output);
-		FFHistogramGenerator bGenerator = new FFHistogramGenerator(bValues, "b Histogram", superPath);
-		FFError bHistogramError = bGenerator.call();
-		
-		if(chalfHistogramError == FFError.NoError && bHistogramError == FFError.NoError){
-			TextFlowWriter.removeLast(this.output);
-			TextFlowWriter.writeSuccess("Successfully drew histograms", this.output);
-		}
-		else{
-			TextFlowWriter.removeLast(this.output);
-			TextFlowWriter.writeError("Error drawing histograms", this.output);
-		}
 	}
 
 	//Called as an indication everything is loaded
@@ -182,6 +151,49 @@ public class FFModelSinglet extends AbstractFFModel{
 			e.printStackTrace();
 			TextFlowWriter.writeError(e.getMessage(), super.output);
 		}
+	}
+	@Override
+	public void generateHistograms() {
+		/**
+		 * Generate Histograms
+		 */
+		TextFlowWriter.writeInfo("Generating Histograms...", this.output);
+		
+		/*Generate C 1/2 Histogram*/
+		List<Double> cHalfValues = new ArrayList<Double>();
+		List<Double> bValues = new ArrayList<Double>();
+		List<Double> adjustedRSquaredValues = new ArrayList<Double>();
+		for (Chartable chartable: super.data.chartables1){
+			cHalfValues.add(chartable.chalf);
+			bValues.add(chartable.b);
+			adjustedRSquaredValues.add(chartable.adjRSquared);
+		}
+		TextFlowWriter.writeInfo("Calculating C 1/2", this.output);
+		FFHistogramGenerator chalfGenerator = new FFHistogramGenerator(cHalfValues, "Midpoint Histogram",superPath, -1);
+		FFError chalfHistogramError = chalfGenerator.call();
+		
+		TextFlowWriter.removeLast(this.output);
+		TextFlowWriter.writeInfo("Calculating b", this.output);
+		FFHistogramGenerator bGenerator = new FFHistogramGenerator(bValues, "b Histogram", superPath, 
+				FFConstants.InitialBValue);
+		FFError bHistogramError = bGenerator.call();
+		
+		TextFlowWriter.removeLast(this.output);
+		TextFlowWriter.writeInfo("Calculating Adjusted R Squared", this.output);
+		FFHistogramGenerator adjRGenerator = new FFHistogramGenerator(adjustedRSquaredValues, "Adjusted R Squared Histogram", superPath,
+				FFConstants.ADJ_R_SQ_HEURISTIC);
+		FFError adjRHistogramGerror = adjRGenerator.call();
+		
+		if(chalfHistogramError == FFError.NoError && bHistogramError == FFError.NoError
+				&& adjRHistogramGerror == FFError.NoError){
+			TextFlowWriter.removeLast(this.output);
+			TextFlowWriter.writeSuccess("Successfully drew histograms", this.output);
+		}
+		else{
+			TextFlowWriter.removeLast(this.output);
+			TextFlowWriter.writeError("Error drawing histograms", this.output);
+		}
+		
 	}
 
 }
