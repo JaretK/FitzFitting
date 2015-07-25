@@ -197,7 +197,6 @@ public class DualSingletDataSet extends AbstractDataSet {
 			this.peptide = list[0];
 			this.accessionNumber = list[1].trim();
 			this.experiment = list[2];
-			System.out.println(Arrays.toString(list));
 
 			this.isolationInterference1 = Double.parseDouble(list[3]);
 			this.rt1 = Double.parseDouble(list[4]);
