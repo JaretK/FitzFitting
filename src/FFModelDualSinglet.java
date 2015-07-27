@@ -124,8 +124,6 @@ public class FFModelDualSinglet extends AbstractFFModel{
 				super.data.getDenaturants(), graphsPath, super.data.getOffset1(),
 				super.output);
 
-		TextFlowWriter.writeInfo("Generating graphs", super.output);
-
 		//bind progress to average of both workers
 		Platform.runLater(()->{
 			running.set(true);
@@ -133,7 +131,7 @@ public class FFModelDualSinglet extends AbstractFFModel{
 			progress.bind(ffdgg.progressProperty());
 		});
 		//generate graphs and return errors
-		TextFlowWriter.writeInfo("\nGenerating experiment graphs", super.output);
+		TextFlowWriter.writeInfo("Generating experiment graphs using "+ffdgg.getClass().getName(), super.output);
 		ArrayList<GraphStatus> successList = ffdgg.call();
 
 		//check errors

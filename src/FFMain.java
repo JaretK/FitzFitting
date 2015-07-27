@@ -12,6 +12,9 @@ import javafx.stage.Stage;
 
 public class FFMain extends Application {
 
+	/*Constants*/
+	public static final String VERSION = "1.2";
+
 	public static Parent root;
 	public static Stage stage;
 
@@ -23,7 +26,7 @@ public class FFMain extends Application {
 		stage = primaryStage;
 		root = FXMLLoader.load(getClass().getResource("FFLayout.fxml"));
 		Scene scene = new Scene(root);
-		stage.setTitle("FitzFitting SPROX Analysis v1.0");
+		stage.setTitle("FitzFitting SPROX Analysis v"+VERSION);
 		stage.setScene(scene);
 		stage.setResizable(false);
 		stage.show();
@@ -43,7 +46,7 @@ public class FFMain extends Application {
 					System.err.println("Terminating");
 					model.terminate();
 				}
-				
+
 				//If loaded, write message
 				model.writeLoadedMessage();
 				//start digestion (model.start() calls AbstractDataSet.digest())
@@ -56,7 +59,7 @@ public class FFMain extends Application {
 					}
 					model.generateHTML();
 					model.generateHistograms();
-					
+
 				}
 				else // on calculation error
 				{

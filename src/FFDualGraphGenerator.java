@@ -71,7 +71,6 @@ public class FFDualGraphGenerator extends Task<ArrayList<GraphStatus>> {
 
 		/*Initialize Constants*/
 		int currentChartNumber = offset+2;
-		ArrayList<GraphStatus> returnList = new ArrayList<GraphStatus>();
 		DecimalFormat truncation = new DecimalFormat("#.###");
 
 		/*Create Directory*/
@@ -104,7 +103,7 @@ public class FFDualGraphGenerator extends Task<ArrayList<GraphStatus>> {
 			}
 
 			/*Alert User*/
-			TextFlowWriter.writeInfo("Drawing #"+currentChartNumber+" / "+this.runs1.size(),
+			TextFlowWriter.writeInfo("Drawing #"+(currentChartNumber-1)+" / "+this.runs1.size(),
 					this.output);
 
 			/**
@@ -248,6 +247,7 @@ public class FFDualGraphGenerator extends Task<ArrayList<GraphStatus>> {
 		return plt;
 	}
 
+	@SuppressWarnings("serial")
 	private XYItemRenderer getPointRenderer(Chartable chartable){
 		XYLineAndShapeRenderer renderer = new XYLineAndShapeRenderer(false, true){
 			@Override

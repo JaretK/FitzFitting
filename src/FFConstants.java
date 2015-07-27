@@ -8,6 +8,7 @@ public class FFConstants {
 	/*For FFChartableComparator*/
 	public static double ADJ_R_SQ_HEURISTIC = 0.7d;
 	public static double MIDPOINT_HEURISTIC = 0.5d;
+	public static double DIFFERENCE_HEURISTIC = 0.3d;
 	
 	/*Set above heuristics*/
 	public static void setAdjustedRSquaredHeuristic(String set){
@@ -25,6 +26,18 @@ public class FFConstants {
 			MIDPOINT_HEURISTIC = 0.5d;
 		}
 	}
+	
+	public static void setDifferenceHeuristic(String set){
+		try{
+			DIFFERENCE_HEURISTIC = Double.parseDouble(set);
+		}catch(Exception e){
+			DIFFERENCE_HEURISTIC = 0.3d;
+		}
+	}
+	
+	/*For Histogram generator*/
+	public static final double HISTOGRAM_UPPER_BOUND = 10d;
+	public static final double HISTOGRAM_LOWER_BOUND = 0d;
 	
 	/*For FFChartableComparator and HTMLGenerator*/
 	public static final String COMPARISON_FILENAME = "Comparison.csv";

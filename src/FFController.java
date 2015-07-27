@@ -36,7 +36,8 @@ public class FFController extends FFMain implements Initializable{
 	private Button SPROXBrowse, SPROX2Browse, DenaturantBrowse, AnalyzeButton;
 
 	@FXML
-	private TextField SPROXField, SPROX2Field ,DenaturantField, MidPointValue, AdjustedRSquaredValue;
+	private TextField SPROXField, SPROX2Field ,DenaturantField, 
+	MidPointValue, AdjustedRSquaredValue, DifferenceValue;
 
 	@FXML
 	private CheckBox Graphs, CompareInputs, Dual;
@@ -295,6 +296,7 @@ public class FFController extends FFMain implements Initializable{
 		 */
 		FFConstants.setAdjustedRSquaredHeuristic(AdjustedRSquaredValue.getText());
 		FFConstants.setMidPointHeuristic(MidPointValue.getText());
+		FFConstants.setDifferenceHeuristic(DifferenceValue.getText());
 
 		AbstractFFModel model;
 		AbstractDataSet dataset;

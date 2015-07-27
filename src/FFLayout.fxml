@@ -29,6 +29,11 @@
                         <TextField fx:id="AdjustedRSquaredValue" text="0.7" />
                      </graphic>
                   </MenuItem>
+                  <MenuItem fx:id="DifferenceCriteria" mnemonicParsing="false" text="Difference Value">
+                     <graphic>
+                        <TextField fx:id="DifferenceValue" text="0.3" />
+                     </graphic>
+                  </MenuItem>
                </items>
             </Menu>
         </menus>

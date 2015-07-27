@@ -11,8 +11,6 @@ import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartUtilities;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.plot.PlotOrientation;
-import org.jfree.chart.renderer.category.BarRenderer;
-import org.jfree.chart.renderer.category.CategoryItemRenderer;
 import org.jfree.chart.renderer.xy.XYBarRenderer;
 import org.jfree.chart.renderer.xy.XYItemRenderer;
 import org.jfree.data.statistics.HistogramDataset;
@@ -36,16 +34,19 @@ public class FFHistogramGenerator extends Task<FFError> {
 	protected FFError call(){
 		return generate();
 	}
-	
+
 	@SuppressWarnings("serial")
 	private FFError generate(){
-		
+
 		//clean up dataset
 		List<Double> tempDataset = new ArrayList<Double>();
 		for (Double ele : histogramPoints){
-			if(ele < 10 && ele > 0) tempDataset.add(ele);
+			if(ele < FFConstants.HISTOGRAM_UPPER_BOUND 
+					&& ele > FFConstants.HISTOGRAM_LOWER_BOUND){ 
+				tempDataset.add(ele);
+			}
 		}
-		
+
 		//Make dataset
 		HistogramDataset hd = new HistogramDataset();
 		double[] hists = new double[tempDataset.size()];
@@ -53,11 +54,13 @@ public class FFHistogramGenerator extends Task<FFError> {
 			hists[i] = tempDataset.get(i);
 		}
 		
+		//add dataset to histogram set
 		hd.addSeries("Values", hists, NUMBER_BINS);
-		
+
 		//make chart
 		JFreeChart chart = ChartFactory.createHistogram(this.title, "Values", "Count", hd
 				, PlotOrientation.VERTICAL, false, true, false);
+		
 		double xMax = chart.getXYPlot().getDomainAxis().getUpperBound();
 		double xMin = chart.getXYPlot().getDomainAxis().getLowerBound();
 		double xStep = (xMax - xMin)/NUMBER_BINS;
@@ -69,6 +72,7 @@ public class FFHistogramGenerator extends Task<FFError> {
 				else return Color.RED;
 			}
 		};
+		
 		chart.getXYPlot().setRenderer(renderer);
 		try{
 			File PNGFile = new File(this.filepath+File.separator+this.title+".png");
@@ -79,7 +83,7 @@ public class FFHistogramGenerator extends Task<FFError> {
 			e.printStackTrace();
 			return FFError.GraphGenerationError;
 		}
-		
+
 	}
-	
+
 }
