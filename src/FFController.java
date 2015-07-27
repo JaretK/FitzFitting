@@ -26,8 +26,8 @@ import javafx.stage.FileChooser;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import statics.*;
-
-
+import models.*;
+import datasets.*;
 public class FFController extends FFMain implements Initializable{
 
 	private static final boolean DEBUG = false;

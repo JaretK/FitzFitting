@@ -9,7 +9,7 @@ import javafx.scene.Scene;
 import javafx.scene.text.Font;
 import javafx.stage.Stage;
 import containers.*;
-
+import models.*;
 public class FFMain extends Application {
 
 	/*Constants*/
