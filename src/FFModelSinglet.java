@@ -5,9 +5,9 @@ import java.util.List;
 import javafx.application.Platform;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
-
-
-
+import statics.*;
+import containers.*;
+import graph_generators.*;
 /**
  * This is the Model class for the MVC architecture of FitzFitting
  * View = FFMain, FFLayout.fxml

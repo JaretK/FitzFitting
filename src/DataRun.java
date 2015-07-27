@@ -1,9 +1,14 @@
 import java.util.ArrayList;
+
 import java.util.Collections;
 import java.util.List;
 
 import javafx.concurrent.Task;
 import flanagan.analysis.Regression;
+
+import containers.*;
+import statics.*;
+import regression.*;
 
 public class DataRun extends Task<SingleFit>{
 

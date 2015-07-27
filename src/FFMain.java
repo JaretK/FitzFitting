@@ -8,12 +8,13 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.text.Font;
 import javafx.stage.Stage;
-
+import containers.*;
 
 public class FFMain extends Application {
 
 	/*Constants*/
-	public static final String VERSION = "1.2";
+	public static final String VERSION = "1.3";
+	
 
 	public static Parent root;
 	public static Stage stage;

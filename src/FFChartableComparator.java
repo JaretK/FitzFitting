@@ -6,7 +6,8 @@ import java.util.List;
 
 import javafx.concurrent.Task;
 import javafx.scene.text.TextFlow;
-
+import containers.*;
+import statics.*;
 
 public class FFChartableComparator extends Task<ComparisonSummary>{
 
@@ -92,6 +93,8 @@ public class FFChartableComparator extends Task<ComparisonSummary>{
 			sb.append(",");
 			sb.append("Significant?");
 			sb.append(",");
+			sb.append("Passes Difference Analysis?"); //1.3
+			sb.append(","); //1.3
 			sb.append("Hit?");
 			sb.append("\n");
 			fw.write(sb.toString());
@@ -100,7 +103,8 @@ public class FFChartableComparator extends Task<ComparisonSummary>{
 		/** 
 		 * Build / Write rows
 		 * Format:
-		 * peptide[0] accession_number[1] |space| control values (chalf, sd, b, sd, adjrsq) |space| ligand values (etc...) |space| clean? delta c1/2 hit? confident?
+		 * peptide[0] accession_number[1] |space| control values (chalf, sd, b, sd, adjrsq) |space| ligand values (etc...) |space| 
+		 * clean? delta c1/2 Signifidant? DifferenceAnalysis? confident?
 		 */
 
 		List<HitContainer> hits = new ArrayList<HitContainer>();

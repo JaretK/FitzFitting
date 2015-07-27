@@ -5,7 +5,8 @@ import java.util.Arrays;
 import java.util.List;
 
 import javafx.scene.text.TextFlow;
-
+import containers.*;
+import statics.*;
 
 /**
  * Holds all the information needed for a SPROX dataset

@@ -8,8 +8,8 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import javafx.concurrent.Task;
-
-
+import containers.*;
+import statics.*;
 /**
  * Generates the HTML Summary page for the sprox fitting
  * @author jkarnuta
@@ -194,7 +194,7 @@ public class HTMLGenerator extends Task<Void>{
 
 	private String loadBoilerplate(String resourceName) throws IOException{
 		StringBuilder sb = new StringBuilder();
-		InputStream is = this.getClass().getResourceAsStream("Boilerplate/"+resourceName);
+		InputStream is = this.getClass().getResourceAsStream("boilerplates/"+resourceName);
 		BufferedReader br = new BufferedReader( new InputStreamReader(is));
 		String line;
 		while ( ( line = br.readLine()) != null){

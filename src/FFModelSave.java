@@ -1,12 +1,10 @@
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
 import java.util.List;
 
 import javafx.concurrent.Task;
-
+import containers.FFError;
 
 /**
  * Saves the header and ArrayList<String[]> parameters to a new file 

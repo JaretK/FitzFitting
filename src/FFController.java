@@ -25,7 +25,7 @@ import javafx.scene.text.TextFlow;
 import javafx.stage.FileChooser;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
-
+import statics.*;
 
 
 public class FFController extends FFMain implements Initializable{

@@ -6,6 +6,9 @@ import javafx.application.Platform;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
 
+import statics.*;
+import containers.*;
+import graph_generators.*;
 
 public class FFModelDualSinglet extends AbstractFFModel{
 

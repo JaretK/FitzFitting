@@ -8,6 +8,8 @@ import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.scene.text.TextFlow;
 
+import containers.*;
+import statics.*;
 
 
 public abstract class AbstractFFModel {

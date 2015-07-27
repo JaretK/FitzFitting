@@ -1,5 +1,5 @@
 import java.util.List;
-
+import containers.*;
 
 /**
  * Object passed between FFChartableComparator and dual instances of AbstractFFModel. 

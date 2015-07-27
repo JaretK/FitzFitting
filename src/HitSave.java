@@ -1,9 +1,10 @@
 import java.io.File;
 import java.io.FileWriter;
-import java.util.Arrays;
 
 import javafx.concurrent.Task;
-
+import statics.TextFlowWriter;
+import containers.Chartable;
+import containers.HitContainer;
 
 
 public class HitSave extends Task<Boolean>{
