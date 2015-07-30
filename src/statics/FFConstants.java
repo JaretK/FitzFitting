@@ -10,7 +10,9 @@ public class FFConstants {
 	/*For FFChartableComparator*/
 	public static double ADJ_R_SQ_HEURISTIC = 0.7d;
 	public static double MIDPOINT_HEURISTIC = 0.5d;
-	public static double DIFFERENCE_HEURISTIC = 0.3d;
+	public static double DIFFERENCE_HEURISTIC_LOWER = -0.1d;
+	public static double DIFFERENCE_HEURISTIC_UPPER = 0.1d;
+	public static boolean RUN_PEPTIDE_ANALYSIS = true;
 	
 	/*Set above heuristics*/
 	public static void setAdjustedRSquaredHeuristic(String set){
@@ -25,21 +27,24 @@ public class FFConstants {
 		try{
 			MIDPOINT_HEURISTIC = Double.parseDouble(set);
 		}catch(Exception e){
-			MIDPOINT_HEURISTIC = 0.5d;
 		}
 	}
 	
-	public static void setDifferenceHeuristic(String set){
+	public static void setDifferenceHeuristic(String setLower, String setUpper){
 		try{
-			DIFFERENCE_HEURISTIC = Double.parseDouble(set);
+			DIFFERENCE_HEURISTIC_LOWER = Double.parseDouble(setLower);
+			DIFFERENCE_HEURISTIC_UPPER = Double.parseDouble(setUpper);
 		}catch(Exception e){
-			DIFFERENCE_HEURISTIC = 0.3d;
 		}
 	}
 	
-	/*For Histogram generator*/
-	public static final double HISTOGRAM_UPPER_BOUND = 10d;
-	public static final double HISTOGRAM_LOWER_BOUND = 0d;
+	public static void setRunPeptideAnalysis(boolean bool){
+		RUN_PEPTIDE_ANALYSIS = bool;
+	}
+	
+	/*For Histogram generator && FFStatistics*/
+	public static final double CLEAN_UPPER_BOUND = 10d;
+	public static final double CLEAN_LOWER_BOUND = -10d;
 	
 	/*For FFChartableComparator and HTMLGenerator*/
 	public static final String COMPARISON_FILENAME = "Comparison.csv";

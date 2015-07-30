@@ -10,6 +10,7 @@ import javafx.concurrent.Task;
 import javafx.scene.text.TextFlow;
 import containers.*;
 import statics.*;
+import difference_analysis.DifferenceAnalysis;
 
 public class FFChartableComparator extends Task<ComparisonSummary>{
 
@@ -25,6 +26,7 @@ public class FFChartableComparator extends Task<ComparisonSummary>{
 	private int numberClean;
 	private int numberSignificant;
 	private int numberHits;
+	private int numberPassedDifferenceAnalysis;
 
 	private int currentLineNumber = 0;
 
@@ -41,6 +43,7 @@ public class FFChartableComparator extends Task<ComparisonSummary>{
 		allCompared = true;
 		numberClean = 0;
 		numberSignificant = 0;
+		numberPassedDifferenceAnalysis = 0;
 		numberHits = 0;
 	}
 
@@ -78,6 +81,12 @@ public class FFChartableComparator extends Task<ComparisonSummary>{
 			StringBuilder expHeader = new StringBuilder();
 			expHeader.append("C 1/2, C 1/2 SD, b, bSD, Adjusted R Squared,");
 
+			//generalized headers for peptide analysis
+			StringBuilder peptideDiffHeader = new StringBuilder("tag #");
+			for (int j = 0; j < charts1.get(0).intensities.length; j ++){
+				peptideDiffHeader.append((j+1)+",");
+			}
+			
 			//actual header 
 			StringBuilder sb = new StringBuilder();
 			sb.append("Peptide");
@@ -89,6 +98,8 @@ public class FFChartableComparator extends Task<ComparisonSummary>{
 			sb.append(","); //insert empty cell
 			sb.append(expHeader);
 			sb.append(","); //insert empty cell
+			sb.append(peptideDiffHeader);
+			sb.append(",");
 			sb.append("Clean?");
 			sb.append(",");
 			sb.append("Delta C 1/2 Midpoint");
@@ -161,7 +172,13 @@ public class FFChartableComparator extends Task<ComparisonSummary>{
 			line.append(c2.adjRSquared);
 			line.append(",");
 
-			//build comparisons
+			//build difference analysis
+			line.append(",");
+			DifferenceAnalysis diff = new DifferenceAnalysis(c1.intensities, c2.intensities);
+			line.append(FFOperations.doubleArrayToCSV(diff.getPeptideDifferences()));
+			line.append(",");
+			
+			/*build comparisons*/
 			line.append(","); //add empty cell
 
 			// row clean?
@@ -184,10 +201,18 @@ public class FFChartableComparator extends Task<ComparisonSummary>{
 			String significantText = (significant) ? "TRUE" : "FALSE";
 			line.append(significantText);
 			line.append(",");
+			
+			//passes difference analysis?
+			boolean differenceAnalysis = diff.getPassed();
+			if(differenceAnalysis){
+				numberPassedDifferenceAnalysis ++;
+			}
+			line.append((differenceAnalysis) ? "TRUE" : "FALSE");
+			line.append(",");
 
 			//is this a hit?
 			//for hit, both runs must be clean and the dMidpoint must be significant
-			boolean hit = (overallClean && significant);
+			boolean hit = (overallClean && significant && differenceAnalysis);
 			if(hit) numberHits ++;
 			String hitText = (hit) ? "TRUE" : "FALSE";
 			line.append(hitText);
@@ -199,7 +224,7 @@ public class FFChartableComparator extends Task<ComparisonSummary>{
 			if(hit){
 				hits.add(new HitContainer(currentLineNumber,
 						c1.peptide, c1.protein, c1.chalf, c1.adjRSquared,
-						c2.chalf, c2.adjRSquared, dMidpoint));
+						c2.chalf, c2.adjRSquared, dMidpoint, diff.getPeptideDifferences()));
 			}
 
 			//End of line writing, write line to file
@@ -213,6 +238,7 @@ public class FFChartableComparator extends Task<ComparisonSummary>{
 		fw.write("All Peptides Compared?,"+(allCompared ? "yes" : "no")+"\n");
 		fw.write("Number Clean Runs,"+numberClean + "\n");
 		fw.write("Number Significant Peptides,"+numberSignificant + "\n");
+		fw.write("Number passed Difference Analysis,"+numberPassedDifferenceAnalysis);
 		fw.write("Number Hits,"+numberHits+"\n");
 
 		fw.flush();
@@ -220,7 +246,7 @@ public class FFChartableComparator extends Task<ComparisonSummary>{
 
 		ComparisonSummary compSummary = new ComparisonSummary(
 				numberCompared, allCompared, numberClean, 
-				numberSignificant, numberHits, hits, allDeltaMidpoints);
+				numberSignificant, numberHits, hits, allDeltaMidpoints, numberPassedDifferenceAnalysis);
 		return compSummary;
 	}
 }

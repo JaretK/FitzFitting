@@ -27,11 +27,15 @@ public class FFHistogramGenerator extends Task<FFError> {
 	private final String filepath;
 	private static final int NUMBER_BINS = 100;
 	private final double cutoff;
-	public FFHistogramGenerator(List<Double> charts, String title, String filepath, double cutoff){
+	private final double LOWER_BOUND; 
+	
+	public FFHistogramGenerator(List<Double> charts, String title, String filepath, 
+			double cutoff, boolean negativesAllowed){
 		this.histogramPoints = charts;
 		this.title = title;
 		this.filepath = filepath;
 		this.cutoff = cutoff;
+		this.LOWER_BOUND = negativesAllowed? FFConstants.CLEAN_LOWER_BOUND : 0.0d;
 	}
 
 	@Override
@@ -45,8 +49,8 @@ public class FFHistogramGenerator extends Task<FFError> {
 		//clean up dataset
 		List<Double> tempDataset = new ArrayList<Double>();
 		for (Double ele : histogramPoints){
-			if(ele < FFConstants.HISTOGRAM_UPPER_BOUND 
-					&& ele > FFConstants.HISTOGRAM_LOWER_BOUND){ 
+			if(ele < FFConstants.CLEAN_UPPER_BOUND 
+					&& ele > LOWER_BOUND){ 
 				tempDataset.add(ele);
 			}
 		}

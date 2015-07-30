@@ -20,6 +20,10 @@
 		<td>$NUMBER_SIGNIFICANT$</td>
 	</tr>
 	<tr class  = "alt">
+		<td>Number Passed Difference Analysis ($DIFFERENCE_HEURISTIC_LOWER$ < &Delta;x < $DIFFERENCE_HEURISTIC_UPPER$)</td>
+		<td>$DIFFERENCE_PASSED$</td>
+	</tr>
+	<tr>
 		<td>Number Hits</td>
 		<td>$NUMBER_HITS$</td>
 	</tr>

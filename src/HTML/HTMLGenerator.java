@@ -1,19 +1,25 @@
 package HTML;
-import models.*;
-import datasets.*;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
 
 import javafx.concurrent.Task;
-import containers.*;
-import statics.*;
-import comparison.*;
+import models.AbstractFFModel;
+import models.FFModelDoublet;
+import models.FFModelDualSinglet;
+import statics.FFConstants;
+import statistics.FFStatistics;
+import comparison.ComparisonSummary;
+import containers.Chartable;
+import containers.HitContainer;
+import containers.StatisticsContainer;
 
 /**
  * Generates the HTML Summary page for the sprox fitting
@@ -27,15 +33,19 @@ public class HTMLGenerator extends Task<Void>{
 	private StringBuilder html;
 
 	private static final String SAVED_FILENAME = "FittingSummary.html";
+	private static final String INSERT_ROW_HERE = "$INSERT_ROW_HERE$";
+	private static final String TRUNCATION_FORMAT = "#.#####";
 
 	/*Constants used for temporary placeholders in boilerplates*/
 	//Boilerplate file names
 	private static final String INITIAL_BOILERPLATE = "FFSummary.boilerplate";
 	private static final String COMPARISON_SUMMARY_BOILERPLATE = "ComparisonSummary.boilerplate";
+	private static final String POPULATION_STATISTICS_BOILERPLATE = "PopulationStatistics.boilerplate";
 	private static final String CALCULATED_HITS_BOILERPLATE = "CalculatedHits.boilerplate";
 
 	//initial comments
 	private static final String TEMPDATE = "$TEMPDATE$";
+	private static final String INIT_FILE_NAME = "$FILE_NAME$";
 	private static final String CLASS_NAME = "$CLASS_NAME$";
 	private static final String DIRECTORY_PATH = "$DIRECTORY_PATH$";
 	private static final String NUMBER_RUNS = "$NUMBER_RUNS$";
@@ -51,11 +61,16 @@ public class HTMLGenerator extends Task<Void>{
 	private static final String NUMBER_CLEAN = "$NUMBER_CLEAN$";
 	private static final String MIDPOINT_HEURISTIC = "$MIDPOINT_HEURISTIC$";
 	private static final String NUMBER_SIGNIFICANT = "$NUMBER_SIGNIFICANT$";
+	private static final String DIFFERENCE_HEURISTIC_UPPER = "$DIFFERENCE_HEURISTIC_UPPER$";
+	private static final String DIFFERENCE_HEURISTIC_LOWER = "$DIFFERENCE_HEURISTIC_LOWER$";
+	private static final String NUMBER_PASSED_DIFFERENCE = "$DIFFERENCE_PASSED$";
 	private static final String NUMBER_HITS = "$NUMBER_HITS$";
+
+	//PopulationStatistics.boilerplate
+	private static final String POPULATION_STATISTICS_PLACEHOLDER = "$POPULATION_STATISTICS$";
 
 	//CalculatedHits.boilerplate
 	private static final String CALCULATED_HITS_PLACEHOLDER = "$CALCULATED_HITS$";
-	private static final String INSERT_ROW_HERE = "$INSERT_ROW_HERE$";
 
 	//AllRuns.boilerplate
 	private static final String ALL_RUNS_BOILERPLATE = "AllRuns.boilerplate";
@@ -79,6 +94,7 @@ public class HTMLGenerator extends Task<Void>{
 
 		//Fill in inital comments
 		findAndReplace(TEMPDATE, getCurrentDate());
+		findAndReplace(INIT_FILE_NAME, model.getSPROXFileName());
 		findAndReplace(CLASS_NAME, model.getClass().getName());
 		findAndReplace(DIRECTORY_PATH, model.getSuperPath());
 		int numberRuns = 0;
@@ -101,7 +117,7 @@ public class HTMLGenerator extends Task<Void>{
 		/**
 		 * Begin Parsing to fill in other portions
 		 */
-		/*Fill out $COMPARISON_SUMMARY$*/
+		/*Fill out $COMPARISON_SUMMARY$*/ 
 		if (compSummary != null){
 			final String comparisonSummaryBoilerplate = loadBoilerplate(COMPARISON_SUMMARY_BOILERPLATE);
 			findAndReplace(COMPARISON_SUMMARY_PLACEHOLDER, comparisonSummaryBoilerplate); 
@@ -114,12 +130,59 @@ public class HTMLGenerator extends Task<Void>{
 			findAndReplace(NUMBER_CLEAN, compSummary.numberClean);
 			findAndReplace(MIDPOINT_HEURISTIC, FFConstants.MIDPOINT_HEURISTIC);
 			findAndReplace(NUMBER_SIGNIFICANT, compSummary.numberSignificant);
+			if(!FFConstants.RUN_PEPTIDE_ANALYSIS){
+				findAndReplace(DIFFERENCE_HEURISTIC_UPPER, "&infin;");
+				findAndReplace(DIFFERENCE_HEURISTIC_LOWER, "-&infin;");
+			}
+			else{
+				findAndReplace(DIFFERENCE_HEURISTIC_UPPER, FFConstants.DIFFERENCE_HEURISTIC_UPPER);
+				findAndReplace(DIFFERENCE_HEURISTIC_LOWER, FFConstants.DIFFERENCE_HEURISTIC_LOWER);
+			}
+			
+			findAndReplace(NUMBER_PASSED_DIFFERENCE, compSummary.numberPassedDifferenceAnalysis);
 			findAndReplace(NUMBER_HITS, compSummary.numberHits);
 		}
 		else{
 			final String alternateText = "<h2>Comparison Summary</h2>\n<p class = \"error\">Comparison Not Performed</p>";
 			findAndReplace(COMPARISON_SUMMARY_PLACEHOLDER, alternateText);
 		}
+
+		/*Fill out $POPULATION_STATISTICS$*/
+		final String populationStatisticsBoilerplate = loadBoilerplate(POPULATION_STATISTICS_BOILERPLATE);
+		findAndReplace(POPULATION_STATISTICS_PLACEHOLDER, populationStatisticsBoilerplate);
+		/*calculate population statistics
+		 *-b
+		 *-C 1/2
+		 *-Adjusted R Squared
+		 *-A
+		 *-B
+		 */
+
+		/*
+		 * -Control
+		 * -Ligand
+		 */
+		if (compSummary != null){//comparison performed, use control, ligand
+			addFullStatisticsBlock("Control ", model.data.getChartables1(), false);
+
+			String nullStatisticsRow = nullStatisticsRowGenerator(true);
+			findAndReplace(INSERT_ROW_HERE, nullStatisticsRow);
+
+			addFullStatisticsBlock("Ligand ", model.data.getChartables2(), false);
+
+			findAndReplace(INSERT_ROW_HERE, nullStatisticsRow);
+
+			FFStatistics ffstats = new FFStatistics();
+			StatisticsContainer stats = ffstats.getStatistics(compSummary.deltaMidpointList);
+			String row = statisticsRowGenerator(false, "&Delta;Midpoint", stats);
+			findAndReplace(INSERT_ROW_HERE, row);
+
+		}
+		else{
+			addFullStatisticsBlock("", model.data.getChartables1(), false);
+		}
+		findAndReplace(INSERT_ROW_HERE, "");
+
 
 		/*Fill out $CALCULATED_HITS$ */
 		if (compSummary != null){
@@ -206,6 +269,76 @@ public class HTMLGenerator extends Task<Void>{
 			sb.append(line+"\n");
 		}
 		return sb.toString();
+	}
+
+	private void addFullStatisticsBlock(String identifier, List<Chartable> data, boolean altStart){
+		FFStatistics FFstats = new FFStatistics();
+
+		String name = identifier+"Midpoints";
+		StatisticsContainer stats = FFstats.getMidpointStatistics(data);
+		String row = statisticsRowGenerator(altStart, name, stats);
+		findAndReplace(INSERT_ROW_HERE, row);
+
+		altStart = !altStart;
+		name = identifier+"Adjusted R<sup>2</sup>";
+		stats = FFstats.getAdjustedRSquaredStatistics(data);
+		row = statisticsRowGenerator(altStart, name, stats);
+		findAndReplace(INSERT_ROW_HERE, row);
+
+		altStart = !altStart;
+		name = identifier+"b";
+		stats = FFstats.getbStatistics(data);
+		row = statisticsRowGenerator(altStart, name, stats);
+		findAndReplace(INSERT_ROW_HERE, row);
+
+		altStart = !altStart;
+		name = identifier+"A";
+		stats = FFstats.getAStatistics(data);
+		row = statisticsRowGenerator(altStart, name, stats);
+		findAndReplace(INSERT_ROW_HERE, row);
+
+		altStart = !altStart;
+		name = identifier+"B";
+		stats = FFstats.getBStatistics(data);
+		row = statisticsRowGenerator(altStart, name, stats);
+		findAndReplace(INSERT_ROW_HERE, row);
+	}
+
+	private String statisticsRowGenerator(boolean alt, String population, StatisticsContainer container){
+		return statisticsRowGenerator(alt, population, container.getN(), container.getMean(),
+				container.getMedian(), container.getStd(), container.getTenth(), container.getNinetieth());
+	}
+
+	private String statisticsRowGenerator(boolean alt,String population, int N, double mean, double median, 
+			double standardDeviation, double th10, double th90){
+		String classText = alt ? " class = \"alt\"" : "";
+		DecimalFormat truncation = new DecimalFormat(TRUNCATION_FORMAT);
+		String s =  "<tr"+classText+">"
+				+"<td>"+population+"</td>"
+				+"<td>"+N+"</td>"
+				+"<td>"+truncation.format(mean)+"</td>"
+				+"<td>"+truncation.format(median)+"</td>"
+				+"<td>"+truncation.format(standardDeviation)+"</td>"
+				+"<td>"+truncation.format(th10)+"</td>"
+				+"<td>"+truncation.format(th90)+"</td>"
+				+"</tr>\n"
+				+INSERT_ROW_HERE+"\n";
+		return s;
+	}
+
+	private String nullStatisticsRowGenerator(boolean alt){
+		String classText = alt ? " class = \"alt\"" : "";
+		String s =  "<tr"+classText+">"
+				+"<td> - </td>"
+				+"<td> - </td>"
+				+"<td> - </td>"
+				+"<td> - </td>"
+				+"<td> - </td>"
+				+"<td> - </td>"
+				+"<td> - </td>"
+				+"</tr>\n"
+				+INSERT_ROW_HERE+"\n";
+		return s;
 	}
 
 	private String calculatedHitsRowGenerator(int rowNumber, String peptide, String protein, String alt, boolean graphs){

@@ -22,6 +22,9 @@ body{
 }
 
 /*For text styling*/
+#date{
+	font-weight:bold;
+}
 .error{
 	font-size: 1em;
 	color: red;
@@ -115,7 +118,8 @@ br.clearLeft {
 <div id = "nav-container">
             <div id="nav">
                 <ul>
-                	  <li><a href="#top">Top</a></li>
+                	 <li><a href="#top">Top</a></li>
+                	 <li><a href="#statistics">Statistics</a></li>
                     <li><a href="#calculated-hits">Calculated Hits</a></li>
                     <li><a href="#all-runs">All Runs</a></li>
                 </ul>    
@@ -128,17 +132,21 @@ br.clearLeft {
 <td> Auto generated on <span id = "date">$TEMPDATE$</span></td>
 </tr>
 <tr>
-<td> Summary / findings report generated for $CLASS_NAME$ </td>
+<td> Summary report generated for <b>$FILE_NAME$</b> </td>
 </tr>
 <tr class = "alt">
-<td> Saved Directory Path: $DIRECTORY_PATH$</span></td>
+<td> Model used: <b>$CLASS_NAME$</b> </td>
 </tr>
 <tr>
-<td> Analyzed $NUMBER_RUNS$ runs </td>
+<td> Saved Directory Path: <b>$DIRECTORY_PATH$</b></td>
+</tr>
+<tr class = "alt">
+<td> Analyzed <b>$NUMBER_RUNS$</b> runs </td>
 </tr>
 </table>
 
 $COMPARISON_SUMMARY$
+$POPULATION_STATISTICS$
 $CALCULATED_HITS$
 $ALL_RUNS$
 

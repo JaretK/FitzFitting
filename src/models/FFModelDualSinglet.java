@@ -194,19 +194,19 @@ public class FFModelDualSinglet extends AbstractFFModel{
 		}
 		TextFlowWriter.writeInfo("Calculating C 1/2", this.output);
 		FFHistogramGenerator chalfGenerator = new FFHistogramGenerator(cHalfValues, "Control C Midpoint Histogram",
-				getSuperPath(), -1);
+				getSuperPath(), -1, false);
 		histoErrors.add(chalfGenerator.call());
 
 		TextFlowWriter.removeLast(this.output);
 		TextFlowWriter.writeInfo("Calculating b", this.output);
 		FFHistogramGenerator bGenerator = new FFHistogramGenerator(bValues, "Control b Histogram"
-				, getSuperPath(), FFConstants.InitialBValue);
+				, getSuperPath(), FFConstants.InitialBValue, false);
 		histoErrors.add(bGenerator.call());
 		
 		TextFlowWriter.removeLast(this.output);
 		TextFlowWriter.writeInfo("Calculating Adjusted R Squared", this.output);
 		FFHistogramGenerator adjRGenerator = new FFHistogramGenerator(adjustedRSquaredValues, "Control Adjusted R Squared Histogram"
-				, getSuperPath(), FFConstants.ADJ_R_SQ_HEURISTIC);
+				, getSuperPath(), FFConstants.ADJ_R_SQ_HEURISTIC, false);
 		histoErrors.add(adjRGenerator.call());
 
 		/*Generate ligand Data*/
@@ -222,19 +222,19 @@ public class FFModelDualSinglet extends AbstractFFModel{
 		TextFlowWriter.removeLast(this.output);
 		TextFlowWriter.writeInfo("Calculating C 1/2", this.output);
 		FFHistogramGenerator chalfLigandGenerator = new FFHistogramGenerator(cHalfValues, "Ligand Midpoint Histogram"
-				,getSuperPath(), -1);
+				,getSuperPath(), -1, false);
 		histoErrors.add(chalfLigandGenerator.call());
 
 		TextFlowWriter.removeLast(this.output);
 		TextFlowWriter.writeInfo("Calculating b", this.output);
 		FFHistogramGenerator bLigandGenerator = new FFHistogramGenerator(bValues, "Ligand b Histogram"
-				, getSuperPath(), FFConstants.InitialBValue);
+				, getSuperPath(), FFConstants.InitialBValue, false);
 		histoErrors.add(bLigandGenerator.call());
 		
 		TextFlowWriter.removeLast(this.output);
 		TextFlowWriter.writeInfo("Calculating Adjusted R Squared", this.output);
 		FFHistogramGenerator adjRLigandGenerator = new FFHistogramGenerator(adjustedRSquaredValues, "Ligand Adjusted R Squared Histogram"
-				, getSuperPath(), FFConstants.ADJ_R_SQ_HEURISTIC);
+				, getSuperPath(), FFConstants.ADJ_R_SQ_HEURISTIC, false);
 		histoErrors.add(adjRLigandGenerator.call());
 		
 		/*Generate comparing data*/
@@ -245,7 +245,7 @@ public class FFModelDualSinglet extends AbstractFFModel{
 		TextFlowWriter.removeLast(this.output);
 		TextFlowWriter.writeInfo("Calculating delta Midpoint", this.output);
 		FFHistogramGenerator deltaMidpointGenerator = new FFHistogramGenerator(comparedMidpoints, "Delta Midpoint Histogram", 
-				getSuperPath(), FFConstants.MIDPOINT_HEURISTIC);
+				getSuperPath(), FFConstants.MIDPOINT_HEURISTIC, true);
 		histoErrors.add(deltaMidpointGenerator.call());
 		
 

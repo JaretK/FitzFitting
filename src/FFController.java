@@ -13,6 +13,8 @@ import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
+import javafx.scene.control.CheckMenuItem;
+import javafx.scene.control.Menu;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.ProgressBar;
 import javafx.scene.control.ScrollPane;
@@ -37,8 +39,14 @@ public class FFController extends FFMain implements Initializable{
 
 	@FXML
 	private TextField SPROXField, SPROX2Field ,DenaturantField, 
-	MidPointValue, AdjustedRSquaredValue, DifferenceValue;
+	MidPointValue, AdjustedRSquaredValue, DifferenceValueLower, DifferenceValueUpper;
 
+	@FXML
+	private CheckMenuItem RunPeptideAnalysis;
+	
+	@FXML
+	private Menu MidpointCriteria, AdjustedRSquaredCriteria, DifferenceCriteria;
+	
 	@FXML
 	private CheckBox Graphs, CompareInputs, Dual;
 
@@ -46,7 +54,7 @@ public class FFController extends FFMain implements Initializable{
 	private Group SPROXGroup, SPROX2Group;
 
 	@FXML
-	private MenuItem Reset, Exit;
+	private MenuItem Reset, Exit, PeptideLowerBound, PeptideUpperBound;
 
 	@FXML
 	private TextFlow FFInfo;
@@ -66,7 +74,7 @@ public class FFController extends FFMain implements Initializable{
 		 * Do not allow indeterminate states for CheckBoxes
 		 */
 		Graphs.setAllowIndeterminate(false);
-
+		
 		/**
 		 * Add listeners and bindings
 		 */
@@ -296,7 +304,8 @@ public class FFController extends FFMain implements Initializable{
 		 */
 		FFConstants.setAdjustedRSquaredHeuristic(AdjustedRSquaredValue.getText());
 		FFConstants.setMidPointHeuristic(MidPointValue.getText());
-		FFConstants.setDifferenceHeuristic(DifferenceValue.getText());
+		FFConstants.setDifferenceHeuristic(DifferenceValueLower.getText(), DifferenceValueUpper.getText());
+		FFConstants.setRunPeptideAnalysis(RunPeptideAnalysis.isSelected());
 
 		AbstractFFModel model;
 		AbstractDataSet dataset;

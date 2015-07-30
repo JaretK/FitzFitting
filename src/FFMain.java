@@ -6,6 +6,7 @@ import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.image.Image;
 import javafx.scene.text.Font;
 import javafx.stage.Stage;
 import containers.*;
@@ -29,6 +30,7 @@ public class FFMain extends Application {
 		Scene scene = new Scene(root);
 		stage.setTitle("FitzFitting SPROX Analysis v"+VERSION);
 		stage.setScene(scene);
+		stage.getIcons().add(new Image("/images/SPROXFitting.png"));
 		stage.setResizable(false);
 		stage.show();
 	}

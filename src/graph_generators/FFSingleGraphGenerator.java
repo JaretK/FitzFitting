@@ -88,6 +88,9 @@ public class FFSingleGraphGenerator extends Task<ArrayList<GraphStatus>> {
 			String chartTitle = chartable.peptide+" ("+chartable.protein+")";
 			String xAxisLabel = "Denaturant Concentration (M)";
 			String yAxisLabel = "Normalized Intensities";
+			
+			double rangeMax = FFMath.max(chartable.intensities)+0.03;
+			double rangeMin = FFMath.min(chartable.intensities)-0.1;
 
 			/* Set up Scatter*/
 			XYSeries xyScatter = getXYData(chartable);
@@ -133,15 +136,16 @@ public class FFSingleGraphGenerator extends Task<ArrayList<GraphStatus>> {
 				/*Set up Axis*/
 				NumberAxis domainAxis = new NumberAxis(xAxisLabel);
 				domainAxis.setVerticalTickLabels(true);
-				domainAxis.setTickUnit(new NumberTickUnit(0.2));
+				domainAxis.setTickUnit(new NumberTickUnit(0.3));
 				domainAxis.setLowerMargin(0.1);
 				domainAxis.setUpperMargin(0.1);
 				domainAxis.setAutoRangeIncludesZero(false);
+				
 				NumberAxis rangeAxis = new NumberAxis(yAxisLabel);
 				rangeAxis.setTickUnit(new NumberTickUnit(0.1));
 				rangeAxis.setAutoRangeIncludesZero(false);
-				rangeAxis.setUpperBound(FFMath.max(chartable.intensities)+0.03);
-				rangeAxis.setLowerBound(FFMath.min(chartable.intensities)-0.2);
+				rangeAxis.setUpperBound(rangeMax);
+				rangeAxis.setLowerBound(rangeMin);
 
 				XYPlot plt = new XYPlot();
 				/*Set Axes*/

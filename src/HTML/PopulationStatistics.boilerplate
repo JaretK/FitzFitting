@@ -1,0 +1,14 @@
+
+<h2 id = "statistics">Population Statistical Parameters</h2>
+<table class="sprox-table">
+  <tr>
+    <th>Population</th>
+    <th>N</th>
+    <th>Mean (&mu;)</th>
+    <th>Median</th>
+    <th>Standard Deviation (&sigma;)</th>
+    <th>10th</th>
+    <th>90th</th>
+  </tr>
+  $INSERT_ROW_HERE$
+</table>

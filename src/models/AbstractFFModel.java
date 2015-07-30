@@ -206,6 +206,10 @@ public abstract class AbstractFFModel {
 		}
 	}
 	
+	public String getSPROXFileName(){
+		return this.SPROX1;
+	}
+	
 	public boolean getGenerateGraphs(){
 		return this.generateGraphs;
 	}

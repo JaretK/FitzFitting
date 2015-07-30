@@ -19,21 +19,40 @@
           </Menu>
             <Menu fx:id="HitCriteria" mnemonicParsing="false" text="Hit Criteria">
                <items>
-                  <MenuItem fx:id="MidPointCriteria" mnemonicParsing="false" text="Midpoint">
-                     <graphic>
-                        <TextField fx:id="MidPointValue" text="0.5" />
-                     </graphic>
-                  </MenuItem>
-                  <MenuItem fx:id="AdjustedRSquaredCriteria" mnemonicParsing="false" text="Adjusted R Squared">
-                     <graphic>
-                        <TextField fx:id="AdjustedRSquaredValue" text="0.7" />
-                     </graphic>
-                  </MenuItem>
-                  <MenuItem fx:id="DifferenceCriteria" mnemonicParsing="false" text="Difference Value">
-                     <graphic>
-                        <TextField fx:id="DifferenceValue" text="0.3" />
-                     </graphic>
-                  </MenuItem>
+                  <Menu mnemonicParsing="false" text="Midpoint Criteria">
+                     <items>
+                        <MenuItem mnemonicParsing="false" text="Midpoint Cutoff">
+                           <graphic>
+                              <TextField fx:id="MidPointValue" promptText="Midpoint Cutoff Criteria" text="0.5" />
+                           </graphic>
+                        </MenuItem>
+                     </items>
+                  </Menu>
+                  <Menu mnemonicParsing="false" text="Adjusted R Squared Criteria">
+                     <items>
+                        <MenuItem mnemonicParsing="false" text="Adjusted R Squared Cutoff">
+                           <graphic>
+                              <TextField fx:id="AdjustedRSquaredValue" promptText="Adjusted R Squared Cutoff" text="0.7" />
+                           </graphic>
+                        </MenuItem>
+                     </items>
+                  </Menu>
+                  <Menu fx:id="DifferenceCriteria" mnemonicParsing="false" text="Difference Criteria">
+                    <items>
+                        <CheckMenuItem fx:id="RunPeptideAnalysis" mnemonicParsing="false" selected="true" text="Run Peptide Analysis" />
+                        <SeparatorMenuItem mnemonicParsing="false" />
+                        <MenuItem fx:id="PeptideLowerBound" mnemonicParsing="false" text="Lower Bound">
+                           <graphic>
+                              <TextField fx:id="DifferenceValueLower" promptText="Difference Lower Bound" text="-0.1" />
+                           </graphic>
+                        </MenuItem>
+                      <MenuItem fx:id="PeptideUpperBound" mnemonicParsing="false" text="Upper Bound">
+                           <graphic>
+                              <TextField fx:id="DifferenceValueUpper" promptText="Difference Upper Bound" text="0.1" />
+                           </graphic>
+                        </MenuItem>
+                    </items>
+                  </Menu>
                </items>
             </Menu>
         </menus>

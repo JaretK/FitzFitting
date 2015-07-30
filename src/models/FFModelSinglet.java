@@ -110,7 +110,7 @@ public class FFModelSinglet extends AbstractFFModel{
 			}
 		}
 		//successful alert
-		if(numberErrors == 0 && successList.size() == this.data.getRuns1().size())
+		if(numberErrors == 0)
 			TextFlowWriter.writeSuccess("Successfully generated "+this.data.getRuns1().size() + " graphs", this.output);
 		//alert if any charts are missing
 		else{
@@ -178,19 +178,19 @@ public class FFModelSinglet extends AbstractFFModel{
 			adjustedRSquaredValues.add(chartable.adjRSquared);
 		}
 		TextFlowWriter.writeInfo("Calculating C 1/2", this.output);
-		FFHistogramGenerator chalfGenerator = new FFHistogramGenerator(cHalfValues, "Midpoint Histogram",getSuperPath(), -1);
+		FFHistogramGenerator chalfGenerator = new FFHistogramGenerator(cHalfValues, "Midpoint Histogram",getSuperPath(), -1, false);
 		FFError chalfHistogramError = chalfGenerator.call();
 		
 		TextFlowWriter.removeLast(this.output);
 		TextFlowWriter.writeInfo("Calculating b", this.output);
 		FFHistogramGenerator bGenerator = new FFHistogramGenerator(bValues, "b Histogram", getSuperPath(), 
-				FFConstants.InitialBValue);
+				FFConstants.InitialBValue, false);
 		FFError bHistogramError = bGenerator.call();
 		
 		TextFlowWriter.removeLast(this.output);
 		TextFlowWriter.writeInfo("Calculating Adjusted R Squared", this.output);
 		FFHistogramGenerator adjRGenerator = new FFHistogramGenerator(adjustedRSquaredValues, "Adjusted R Squared Histogram", getSuperPath(),
-				FFConstants.ADJ_R_SQ_HEURISTIC);
+				FFConstants.ADJ_R_SQ_HEURISTIC, false);
 		FFError adjRHistogramGerror = adjRGenerator.call();
 		
 		if(chalfHistogramError == FFError.NoError && bHistogramError == FFError.NoError

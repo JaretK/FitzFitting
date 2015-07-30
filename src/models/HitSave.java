@@ -7,6 +7,8 @@ import javafx.concurrent.Task;
 import statics.TextFlowWriter;
 import containers.Chartable;
 import containers.HitContainer;
+import containers.CSVStringBuilder;
+import statics.FFOperations;
 
 public class HitSave extends Task<Boolean>{
 
@@ -38,7 +40,7 @@ public class HitSave extends Task<Boolean>{
 		String[] lastHeader = model.data.getHeaders1().get(model.data.getHeaders1().size()-1);
 		
 		int lastIndex = 3 + (2 + model.data.getDenaturants().length + 5 + 1)*2;
-		String header = CSV_ROW_NUMBER_HEADER + stringArrayToCSV(lastHeader, lastIndex);
+		String header = CSV_ROW_NUMBER_HEADER + FFOperations.stringArrayToCSV(lastHeader, lastIndex);
 		header = header += ",Delta Midpoint,";
 		fw.write(header+"\n");
 		
@@ -129,63 +131,5 @@ public class HitSave extends Task<Boolean>{
 		csv.append("");
 		csv.append(c1.chalf-c2.chalf);
 		return csv.toString();
-	}
-
-	/**
-	 * Converts a string array into a CSV readable string
-	 * String[]{"x","y","z"} ==> "x,y,z"
-	 * @param array
-	 * @return CSV'd string 
-	 */
-	private String stringArrayToCSV(String[] array){
-		StringBuilder sb = new StringBuilder();
-		for (String ele : array){
-			sb.append( "," + ele );
-		}
-		return (sb.length() > 1) ? sb.substring(1) : sb.toString(); // clip the first comma
-	}
-	
-	/**
-	 * Converts a string array to a CSV readable string
-	 * {x,y,z,a,b,c}, 2 => "x,y,z"
-	 * @param array
-	 * @param lastIndex last index to include in the CSV from the string array
-	 * @return CSV'd string
-	 */
-	private String stringArrayToCSV(String[] array, int lastIndex){
-		String[] newArray = new String[lastIndex];
-		for (int i = 0; i < newArray.length; i++){
-			newArray[i] = array[i];
-		}
-		return stringArrayToCSV(newArray);
-	}
-	
-	private class CSVStringBuilder{
-		StringBuilder sb;
-		public CSVStringBuilder(){
-			sb = new StringBuilder();
-		}
-		public void append(String s){
-			sb.append(s);
-			sb.append(",");
-		}
-		public void append(int i){
-			sb.append(i);
-			sb.append(",");
-		}
-		public void append(double d){
-			sb.append(d);
-			sb.append(",");
-		}
-		public void append(double[] darr){
-			for(int i = 0; i < darr.length; i++){
-				this.append(darr[i]);
-			}
-		}
-		
-		public String toString(){
-			StringBuilder ret = new StringBuilder(sb);
-			return ret.substring(0, ret.length()-1).toString()+"\n";
-		}
 	}
 }
