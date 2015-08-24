@@ -52,7 +52,7 @@ public class StatisticsContainer {
 	}
 
 	/**
-	 * @param median the median to set
+	 * @param the median to set
 	 */
 	public void setMedian(double median) {
 		this.median = median;
@@ -73,7 +73,7 @@ public class StatisticsContainer {
 	}
 
 	/**
-	 * @return the tenth
+	 * @return the tenth percentile
 	 */
 	public double getTenth() {
 		return tenth;
@@ -87,7 +87,7 @@ public class StatisticsContainer {
 	}
 
 	/**
-	 * @return the ninetieth
+	 * @return the ninetieth percentile
 	 */
 	public double getNinetieth() {
 		return ninetieth;

@@ -1,16 +1,15 @@
 package datasets;
 
 import java.util.ArrayList;
-
 import java.util.Collections;
 import java.util.List;
 
 import javafx.concurrent.Task;
+import regression.CHalfFunction;
+import statics.FFConstants;
+import statics.FFMath;
+import containers.SingleFit;
 import flanagan.analysis.Regression;
-
-import containers.*;
-import statics.*;
-import regression.*;
 
 public class DataRun extends Task<SingleFit>{
 
@@ -96,12 +95,6 @@ public class DataRun extends Task<SingleFit>{
 		final double[] fIntensities = this.intensities;
 		final double[] fDenaturants = this.denaturants;
 		
-		//populate weights array
-		double[] weights = new double[this.intensities.length];
-		for (int i = 0; i < weights.length; i ++){
-			weights[i] = 1.0d;
-		}
-		
 		ArrayList<SingleFit> fitList = new ArrayList<SingleFit>();
 		
 		//add without removing intensities
@@ -117,7 +110,6 @@ public class DataRun extends Task<SingleFit>{
 				this.calculateFit(y, x),-1,AAndB[0], AAndB[1]));
 		
 		//serially remove each value and recalculate fit
-		//"remove" a value by weighting it 0
 		for (int i = 0; i < this.intensities.length; i++){
 			//populate new arrays
 			ArrayList<Double> tempListIntensities = new ArrayList<Double>();
@@ -132,15 +124,16 @@ public class DataRun extends Task<SingleFit>{
 			newIntensities = tempListIntensities.toArray(newIntensities);
 			newDenaturants = tempListDenaturants.toArray(newDenaturants);
 			
-			//calculate fit
+			//Calculate A and B values
 			AAndB = calculateAAndB(newIntensities);
+			double A = AAndB[0];
+			double B = AAndB[1];
 			
-			SingleFit fit = new SingleFit(this.calculateFit(newIntensities, newDenaturants), i, AAndB[0], AAndB[1]);
+			//calculate fit
+			SingleFit fit = new SingleFit(this.calculateFit(newIntensities, newDenaturants), i, A, B);
 			fitList.add(fit);
-			//remove 0 weight
-			weights[i] = 1.0d;
 		}
-		Collections.sort( fitList);
+		Collections.sort(fitList);
 		return fitList.get(0); //return largest adjRsq
 	}
 	
@@ -148,10 +141,20 @@ public class DataRun extends Task<SingleFit>{
 		double[] ret = new double[2];
 		/*
 		 * determine if curve is oxidized or not based on heuristics
-		 * assume to be non-oxidized if first two points average to be greater than 1.0
+		 * 
+		 * Assume to be Non-Oxidized if first half of values average to be greater than the second half of values
 		 */
-		double A,B;
-		boolean nonOx =  (intensities2[0] + intensities2[1])/2 > 1.0;
+		double A,B, secondHalfValuesSum;
+		double firstHalfValuesSum = secondHalfValuesSum = 0;
+		for (int i = 0; i <intensities2.length/2; i++){
+			firstHalfValuesSum += intensities2[i];
+		}
+		//if odd, second loop contains value in middle
+		for (int i = intensities2.length/2; i < intensities2.length; i++){
+			secondHalfValuesSum += intensities2[i];
+		}
+		//average of first half intensities > average of second half intensities. Accounts for the fact that we could have odd intensities
+		boolean nonOx =  firstHalfValuesSum/(intensities2.length/2) >= secondHalfValuesSum/(intensities2.length-(intensities2.length/2));
 		if (nonOx){
 			A = FFMath.max(intensities2);
 			B = FFMath.min(intensities2);
